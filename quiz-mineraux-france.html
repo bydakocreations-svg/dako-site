@@ -16,6 +16,7 @@
   --uv:#9d7bff;
   --autunite:#7dffb0;
   --grenat:#e0596d;
+  --realgar:#ff8f5e;
   --or-pale:#d9d4ec;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -65,7 +66,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--uv);outline-offs
 .cachee{display:none !important;}
 
 /* Sélecteur de niveau */
-.choix-niveau{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+.choix-niveau{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
 .niveau-carte{
   background:var(--panneau2);border:2px solid var(--brume);border-radius:12px;
   padding:20px 18px;cursor:pointer;text-align:left;font-family:inherit;color:var(--argent);
@@ -74,17 +75,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--uv);outline-offs
 .niveau-carte:hover{border-color:var(--argent-pale);}
 .niveau-carte.choisi-facile{border-color:var(--autunite);box-shadow:0 0 16px rgba(125,255,176,.25);}
 .niveau-carte.choisi-difficile{border-color:var(--uv);box-shadow:0 0 16px rgba(157,123,255,.3);}
+.niveau-carte.choisi-expert{border-color:var(--realgar);box-shadow:0 0 16px rgba(255,143,94,.3);}
 .niveau-titre{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.3rem;font-weight:600;margin-bottom:4px;}
 .niveau-titre.vert{color:var(--autunite);}
 .niveau-titre.violet{color:var(--uv);}
+.niveau-titre.orange{color:var(--realgar);}
 .niveau-desc{font-size:.83rem;color:var(--argent-pale);}
-@media (max-width:560px){.choix-niveau{grid-template-columns:1fr;}}
+@media (max-width:640px){.choix-niveau{grid-template-columns:1fr;}}
 
 /* Quiz */
 .progression{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:.85rem;color:var(--argent-pale);flex-wrap:wrap;gap:6px;}
 .badge-niveau{padding:2px 12px;border-radius:12px;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
 .badge-niveau.facile{background:rgba(125,255,176,.15);color:var(--autunite);}
 .badge-niveau.difficile{background:rgba(157,123,255,.18);color:var(--uv);}
+.badge-niveau.expert{background:rgba(255,143,94,.16);color:var(--realgar);}
 .barre{height:5px;background:var(--brume);border-radius:3px;margin-bottom:26px;overflow:hidden;}
 .barre-remplie{height:100%;background:linear-gradient(90deg,var(--uv),var(--autunite));border-radius:3px;transition:width .4s;}
 .question-texte{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.45rem;font-weight:600;color:var(--or-pale);margin-bottom:24px;line-height:1.35;}
@@ -178,7 +182,7 @@ th{color:var(--argent-pale);font-weight:500;font-size:.78rem;text-transform:uppe
 <!-- ================= ÉCRAN NOM + NIVEAU ================= -->
 <section class="carte" id="ecranNom">
   <h1>Quiz de minéralogie</h1>
-  <p class="sous-titre">Deux quiz de 15 questions chacun. Chaque réponse est expliquée en détail.</p>
+  <p class="sous-titre">Trois quiz de 15 questions. Chaque réponse est expliquée en détail.</p>
   <div class="champ">
     <label for="champNom">Votre nom</label>
     <input type="text" id="champNom" placeholder="Entrez votre nom pour commencer" maxlength="40">
@@ -192,6 +196,10 @@ th{color:var(--argent-pale);font-weight:500;font-size:.78rem;text-transform:uppe
     <button class="niveau-carte" id="carteDifficile">
       <div class="niveau-titre violet">Difficile</div>
       <div class="niveau-desc">Pour connaisseurs : cristallographie, polymorphes, localités types et gisements français de légende.</div>
+    </button>
+    <button class="niveau-carte" id="carteExpert">
+      <div class="niveau-titre orange">Expert</div>
+      <div class="niveau-desc">Haut niveau : propriétés rares, groupes d'espèces, et minéraux toxiques avec le risque encouru.</div>
     </button>
   </div>
   <div style="margin-top:24px;">
@@ -231,7 +239,7 @@ th{color:var(--argent-pale);font-weight:500;font-size:.78rem;text-transform:uppe
   <div id="recapReponses"></div>
   <div class="centre">
     <button class="btn" id="btnRejouer">Rejouer</button>
-    <button class="btn secondaire" id="btnAutreNiveau">Essayer l'autre niveau</button>
+    <button class="btn secondaire" id="btnChangerNiveau">Changer de niveau</button>
   </div>
 </section>
 
@@ -255,16 +263,22 @@ th{color:var(--argent-pale);font-weight:500;font-size:.78rem;text-transform:uppe
     <h1>Statistiques</h1>
     <div class="grille-stats" style="margin-top:18px;">
       <div class="stat-bloc"><div class="stat-valeur" id="admTotalParties">0</div><div class="stat-libelle">Parties jouées</div></div>
-      <div class="stat-bloc"><div class="stat-valeur" id="admPartiesFacile">0</div><div class="stat-libelle">Parties facile</div></div>
-      <div class="stat-bloc"><div class="stat-valeur" id="admPartiesDifficile">0</div><div class="stat-libelle">Parties difficile</div></div>
-      <div class="stat-bloc"><div class="stat-valeur" id="admMoyenneFacile">–</div><div class="stat-libelle">Moyenne facile</div></div>
-      <div class="stat-bloc"><div class="stat-valeur" id="admMoyenneDifficile">–</div><div class="stat-libelle">Moyenne difficile</div></div>
       <div class="stat-bloc"><div class="stat-valeur" id="admMeilleur">–</div><div class="stat-libelle">Meilleur score</div></div>
+    </div>
+    <div class="grille-stats">
+      <div class="stat-bloc"><div class="stat-valeur" id="admFacileNb">0</div><div class="stat-libelle">Parties facile</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admFacileMoy">–</div><div class="stat-libelle">Moyenne facile</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admDifficileNb">0</div><div class="stat-libelle">Parties difficile</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admDifficileMoy">–</div><div class="stat-libelle">Moyenne difficile</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admExpertNb">0</div><div class="stat-libelle">Parties expert</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admExpertMoy">–</div><div class="stat-libelle">Moyenne expert</div></div>
     </div>
     <h2>Taux de réussite — quiz facile</h2>
     <div id="admTauxFacile"></div>
     <h2 style="margin-top:26px;">Taux de réussite — quiz difficile</h2>
     <div id="admTauxDifficile"></div>
+    <h2 style="margin-top:26px;">Taux de réussite — quiz expert</h2>
+    <div id="admTauxExpert"></div>
     <h2 style="margin-top:26px;">Historique des parties</h2>
     <div style="overflow-x:auto;">
       <table>
@@ -279,7 +293,7 @@ th{color:var(--argent-pale);font-weight:500;font-size:.78rem;text-transform:uppe
 
   <div class="carte">
     <h1>Édition des quiz</h1>
-    <p class="sous-titre">Modifiez les questions des deux niveaux : intitulé, options, bonne réponse (bouton radio à gauche) et explication.</p>
+    <p class="sous-titre">Modifiez les questions des trois niveaux : intitulé, options, bonne réponse (bouton radio à gauche) et explication.</p>
 
     <h2 style="color:var(--autunite);">Quiz facile</h2>
     <div id="admQuestionsFacile"></div>
@@ -290,6 +304,12 @@ th{color:var(--argent-pale);font-weight:500;font-size:.78rem;text-transform:uppe
     <h2 style="color:var(--uv);">Quiz difficile</h2>
     <div id="admQuestionsDifficile"></div>
     <button class="btn secondaire" id="btnAjouterDifficile">+ Ajouter une question au quiz difficile</button>
+
+    <hr class="sep-niveau">
+
+    <h2 style="color:var(--realgar);">Quiz expert</h2>
+    <div id="admQuestionsExpert"></div>
+    <button class="btn secondaire" id="btnAjouterExpert">+ Ajouter une question au quiz expert</button>
 
     <div class="centre" style="justify-content:flex-start;">
       <button class="btn" id="btnSauvegarder">Enregistrer les modifications</button>
@@ -303,250 +323,182 @@ th{color:var(--argent-pale);font-weight:500;font-size:.78rem;text-transform:uppe
 
 <script>
 /* ============================================================
-   QUESTIONS PAR DÉFAUT — 15 faciles + 15 difficiles
+   QUESTIONS PAR DÉFAUT — 15 faciles + 15 difficiles + 15 expert
    ============================================================ */
 const QUIZ_DEFAUT = {
 
 facile: [
-{
- id:"f01",
- question:"Sur l'échelle de dureté de Mohs, quel minéral occupe la dixième et dernière place, celle du plus dur ?",
- options:["Le corindon","Le diamant","Le topaze","Le quartz"],
- bonne:1,
- explication:"L'échelle de Mohs (1812) classe dix minéraux de référence du plus tendre au plus dur : le talc (1) jusqu'au diamant (10). Le corindon occupe la 9e place, la topaze la 8e et le quartz la 7e. Chaque minéral raye tous ceux qui le précèdent."
-},
-{
- id:"f02",
- question:"Quel minéral doré est surnommé « l'or des fous » à cause de sa ressemblance trompeuse avec l'or ?",
- options:["La chalcopyrite","La pyrite","La marcassite","La galène"],
- bonne:1,
- explication:"La pyrite (sulfure de fer, FeS2) a piégé bien des chercheurs d'or par son éclat métallique jaune. On la distingue facilement : elle est plus dure que l'or, cassante, et sa trace sur porcelaine est noire verdâtre alors que celle de l'or est jaune."
-},
-{
- id:"f03",
- question:"Quelle est la composition chimique du quartz, l'un des minéraux les plus abondants de la croûte terrestre ?",
- options:["Carbonate de calcium (CaCO3)","Dioxyde de silicium (SiO2)","Sulfate de calcium (CaSO4)","Oxyde d'aluminium (Al2O3)"],
- bonne:1,
- explication:"Le quartz est du dioxyde de silicium, SiO2. C'est le deuxième minéral le plus abondant de la croûte continentale après les feldspaths. Le carbonate de calcium correspond à la calcite, le sulfate de calcium hydraté au gypse et l'oxyde d'aluminium au corindon."
-},
-{
- id:"f04",
- question:"L'améthyste, pierre violette très populaire, est en réalité une variété colorée de quel minéral ?",
- options:["Du quartz","De la fluorine","Du béryl","De la tourmaline"],
- bonne:0,
- explication:"L'améthyste est un quartz violet, coloré par des traces de fer irradiées naturellement. La citrine (jaune), le quartz rose et le quartz fumé sont d'autres variétés colorées du même minéral. Chauffe une améthyste et elle vire souvent au jaune citrine !"
-},
-{
- id:"f05",
- question:"Le sel de cuisine que nous consommons chaque jour existe à l'état de minéral. Comment s'appelle-t-il ?",
- options:["La sylvite","La halite","La calcite","La borax"],
- bonne:1,
- explication:"La halite est le chlorure de sodium (NaCl) cristallisé, appelé aussi sel gemme. Elle forme des cubes parfaits, parfois roses ou bleus. La sylvite lui ressemble mais c'est du chlorure de potassium (KCl), au goût amer."
-},
-{
- id:"f06",
- question:"Quel est le minéral le plus tendre de l'échelle de Mohs, rayable à l'ongle sans effort ?",
- options:["Le gypse","La calcite","Le talc","Le graphite"],
- bonne:2,
- explication:"Le talc occupe la première place de l'échelle de Mohs avec une dureté de 1. Il est si tendre qu'il se raye à l'ongle et laisse une sensation savonneuse au toucher. Le gypse (2) se raye aussi à l'ongle, mais avec plus de résistance."
-},
-{
- id:"f07",
- question:"La malachite, minéral de cuivre très utilisé en ornementation et en lithothérapie, est reconnaissable à sa couleur. Laquelle ?",
- options:["Bleu azur","Vert avec des zonations concentriques","Rouge sang","Violet profond"],
- bonne:1,
- explication:"La malachite est un carbonate de cuivre d'un vert intense, avec des rubanements concentriques caractéristiques quand elle est polie. Sa cousine bleue est l'azurite, avec laquelle elle est souvent associée dans les gisements de cuivre."
-},
-{
- id:"f08",
- question:"L'hématite est le principal minerai d'un métal essentiel à notre civilisation. Lequel ?",
- options:["Le cuivre","L'aluminium","Le fer","Le zinc"],
- bonne:2,
- explication:"L'hématite est un oxyde de fer (Fe2O3), principal minerai de fer avec la magnétite. Malgré son aspect gris métallique, sa trace sur porcelaine est rouge sang, d'où son nom tiré du grec « haima », le sang. Un test de trace suffit à l'identifier."
-},
-{
- id:"f09",
- question:"Le diamant et le graphite de nos crayons ont un point commun surprenant. Lequel ?",
- options:["Ils ont la même dureté","Ils sont composés du même élément chimique","Ils se forment à la même profondeur","Ils ont la même couleur de trace"],
- bonne:1,
- explication:"Diamant et graphite sont tous deux du carbone pur ! Seul l'arrangement des atomes diffère : structure cubique très compacte pour le diamant (dureté 10), feuillets faiblement liés pour le graphite (dureté 1 à 2). On appelle cela des polymorphes."
-},
-{
- id:"f10",
- question:"Quelle propriété étonnante la magnétite possède-t-elle naturellement ?",
- options:["Elle brille dans le noir","Elle attire les objets en fer","Elle change de couleur avec la température","Elle flotte sur l'eau"],
- bonne:1,
- explication:"La magnétite (Fe3O4) est naturellement magnétique : c'est le seul minéral courant qui attire franchement le fer. Les « pierres d'aimant » de l'Antiquité étaient des magnétites, et elles ont donné naissance aux premières boussoles."
-},
-{
- id:"f11",
- question:"L'émeraude, pierre précieuse verte, est une variété de quel minéral ?",
- options:["Du corindon","Du béryl","Du grenat","De l'olivine"],
- bonne:1,
- explication:"L'émeraude est un béryl vert, coloré par du chrome ou du vanadium. Le béryl a d'autres variétés célèbres : l'aigue-marine (bleue), la morganite (rose) et l'héliodore (jaune). Le corindon, lui, donne le rubis et le saphir."
-},
-{
- id:"f12",
- question:"Rubis et saphir sont deux pierres précieuses très différentes en apparence. Quel est leur secret ?",
- options:["Ce sont deux variétés du même minéral, le corindon","Le saphir est un rubis chauffé","Ce sont des variétés de quartz","Le rubis est organique, le saphir minéral"],
- bonne:0,
- explication:"Rubis et saphir sont tous deux du corindon (oxyde d'aluminium, dureté 9). Le chrome donne le rouge du rubis ; le fer et le titane donnent le bleu du saphir. Par convention, tout corindon gemme non rouge est appelé saphir, y compris jaune, rose ou vert."
-},
-{
- id:"f13",
- question:"Le phénomène de « fluorescence », cette lumière émise par certains minéraux sous lampe UV, doit son nom à un minéral. Lequel ?",
- options:["Le fluor natif","La fluorine","La phosphorite","L'opale"],
- bonne:1,
- explication:"Le mot fluorescence a été créé en 1852 par le physicien George Stokes à partir de la fluorine (fluorite), qui présente souvent une belle luminescence bleue ou violette sous UV. L'élément fluor tire lui aussi son nom de ce minéral, et non l'inverse."
-},
-{
- id:"f14",
- question:"Comment identifier facilement la calcite parmi d'autres minéraux blancs ?",
- options:["Elle est magnétique","Elle fait effervescence avec une goutte d'acide","Elle sent le soufre quand on la frotte","Elle est fluorescente à la lumière du jour"],
- bonne:1,
- explication:"La calcite est un carbonate de calcium (CaCO3) : une goutte d'acide chlorhydrique dilué (ou même de vinaigre) la fait mousser en libérant du CO2. C'est LE test classique du géologue de terrain pour distinguer calcite et quartz, qui ne réagit pas."
-},
-{
- id:"f15",
- question:"Dans quel type de roche se forment les géodes d'améthyste géantes du Brésil et d'Uruguay ?",
- options:["Dans le calcaire","Dans les laves volcaniques (basaltes)","Dans le granite","Dans le sel gemme"],
- bonne:1,
- explication:"Ces géodes se forment dans des cavités laissées par les bulles de gaz des coulées de basalte. Des fluides riches en silice y circulent pendant des milliers d'années et tapissent les parois de cristaux d'améthyste, parfois sur plusieurs mètres de haut."
-}
+{ id:"f01", question:"Sur l'échelle de dureté de Mohs, quel minéral occupe la dixième et dernière place, celle du plus dur ?",
+  options:["Le corindon","Le diamant","Le topaze","Le quartz"], bonne:1,
+  explication:"L'échelle de Mohs (1812) classe dix minéraux de référence du plus tendre au plus dur : le talc (1) jusqu'au diamant (10). Le corindon occupe la 9e place, la topaze la 8e et le quartz la 7e. Chaque minéral raye tous ceux qui le précèdent." },
+{ id:"f02", question:"Quel minéral doré est surnommé « l'or des fous » à cause de sa ressemblance trompeuse avec l'or ?",
+  options:["La chalcopyrite","La pyrite","La marcassite","La galène"], bonne:1,
+  explication:"La pyrite (sulfure de fer, FeS2) a piégé bien des chercheurs d'or par son éclat métallique jaune. On la distingue facilement : elle est plus dure que l'or, cassante, et sa trace sur porcelaine est noire verdâtre alors que celle de l'or est jaune." },
+{ id:"f03", question:"Quelle est la composition chimique du quartz, l'un des minéraux les plus abondants de la croûte terrestre ?",
+  options:["Carbonate de calcium","Dioxyde de silicium","Sulfate de calcium","Oxyde d'aluminium"], bonne:1,
+  explication:"Le quartz est du dioxyde de silicium, SiO2. C'est le deuxième minéral le plus abondant de la croûte continentale après les feldspaths. Le carbonate de calcium correspond à la calcite, le sulfate de calcium hydraté au gypse et l'oxyde d'aluminium au corindon." },
+{ id:"f04", question:"L'améthyste, pierre violette très populaire, est en réalité une variété colorée de quel minéral ?",
+  options:["Du quartz","De la fluorine","Du béryl","De la tourmaline"], bonne:0,
+  explication:"L'améthyste est un quartz violet, coloré par des traces de fer irradiées naturellement. La citrine (jaune), le quartz rose et le quartz fumé sont d'autres variétés du même minéral. Chauffe une améthyste et elle vire souvent au jaune citrine." },
+{ id:"f05", question:"Le sel de cuisine que nous consommons chaque jour existe à l'état de minéral. Comment s'appelle-t-il ?",
+  options:["La sylvite","La halite","La calcite","Le borax"], bonne:1,
+  explication:"La halite est le chlorure de sodium (NaCl) cristallisé, appelé aussi sel gemme. Elle forme des cubes parfaits, parfois roses ou bleus. La sylvite lui ressemble mais c'est du chlorure de potassium (KCl), au goût amer." },
+{ id:"f06", question:"Quel est le minéral le plus tendre de l'échelle de Mohs, rayable à l'ongle sans effort ?",
+  options:["Le gypse","La calcite","Le talc","Le graphite"], bonne:2,
+  explication:"Le talc occupe la première place de l'échelle de Mohs avec une dureté de 1. Il est si tendre qu'il se raye à l'ongle et laisse une sensation savonneuse au toucher. Le gypse (2) se raye aussi à l'ongle, mais avec un peu plus de résistance." },
+{ id:"f07", question:"La malachite, minéral de cuivre très utilisé en ornementation, est reconnaissable à sa couleur. Laquelle ?",
+  options:["Bleu azur","Vert avec des zonations concentriques","Rouge sang","Violet profond"], bonne:1,
+  explication:"La malachite est un carbonate de cuivre d'un vert intense, avec des rubanements concentriques caractéristiques quand elle est polie. Sa cousine bleue est l'azurite, avec laquelle elle est souvent associée dans les gisements de cuivre." },
+{ id:"f08", question:"L'hématite est le principal minerai d'un métal essentiel à notre civilisation. Lequel ?",
+  options:["Le cuivre","L'aluminium","Le fer","Le zinc"], bonne:2,
+  explication:"L'hématite est un oxyde de fer (Fe2O3), principal minerai de fer avec la magnétite. Malgré son aspect gris métallique, sa trace sur porcelaine est rouge sang, d'où son nom tiré du grec « haima », le sang. Un test de trace suffit à l'identifier." },
+{ id:"f09", question:"Le diamant et le graphite de nos crayons ont un point commun surprenant. Lequel ?",
+  options:["Ils ont la même dureté","Ils sont composés du même élément chimique","Ils se forment à la même profondeur","Ils ont la même couleur de trace"], bonne:1,
+  explication:"Diamant et graphite sont tous deux du carbone pur. Seul l'arrangement des atomes diffère : structure cubique très compacte pour le diamant (dureté 10), feuillets faiblement liés pour le graphite (dureté 1 à 2). On appelle cela des polymorphes." },
+{ id:"f10", question:"Quelle propriété étonnante la magnétite possède-t-elle naturellement ?",
+  options:["Elle brille dans le noir","Elle attire les objets en fer","Elle change de couleur avec la température","Elle flotte sur l'eau"], bonne:1,
+  explication:"La magnétite (Fe3O4) est naturellement magnétique : c'est le seul minéral courant qui attire franchement le fer. Les « pierres d'aimant » de l'Antiquité étaient des magnétites, et elles ont donné naissance aux premières boussoles." },
+{ id:"f11", question:"L'émeraude, pierre précieuse verte, est une variété de quel minéral ?",
+  options:["Du corindon","Du béryl","Du grenat","De l'olivine"], bonne:1,
+  explication:"L'émeraude est un béryl vert, coloré par du chrome ou du vanadium. Le béryl a d'autres variétés célèbres : l'aigue-marine (bleue), la morganite (rose) et l'héliodore (jaune). Le corindon, lui, donne le rubis et le saphir." },
+{ id:"f12", question:"Rubis et saphir sont deux pierres précieuses très différentes en apparence. Quel est leur secret ?",
+  options:["Ce sont deux variétés du même minéral, le corindon","Le saphir est un rubis chauffé","Ce sont des variétés de quartz","Le rubis est organique, le saphir minéral"], bonne:0,
+  explication:"Rubis et saphir sont tous deux du corindon (oxyde d'aluminium, dureté 9). Le chrome donne le rouge du rubis ; le fer et le titane donnent le bleu du saphir. Par convention, tout corindon gemme non rouge est appelé saphir, y compris jaune, rose ou vert." },
+{ id:"f13", question:"Le phénomène de « fluorescence », cette lumière émise par certains minéraux sous lampe UV, doit son nom à un minéral. Lequel ?",
+  options:["Le fluor natif","La fluorine","La phosphorite","L'opale"], bonne:1,
+  explication:"Le mot fluorescence a été créé en 1852 par le physicien George Stokes à partir de la fluorine (fluorite), qui présente souvent une belle luminescence bleue ou violette sous UV. L'élément fluor tire lui aussi son nom de ce minéral, et non l'inverse." },
+{ id:"f14", question:"Comment identifier facilement la calcite parmi d'autres minéraux blancs ?",
+  options:["Elle est magnétique","Elle fait effervescence avec une goutte d'acide","Elle sent le soufre quand on la frotte","Elle est fluorescente à la lumière du jour"], bonne:1,
+  explication:"La calcite est un carbonate de calcium (CaCO3) : une goutte d'acide chlorhydrique dilué, ou même de vinaigre, la fait mousser en libérant du CO2. C'est le test classique du géologue de terrain pour distinguer calcite et quartz, qui ne réagit pas." },
+{ id:"f15", question:"Dans quel type de roche se forment les géodes d'améthyste géantes du Brésil et d'Uruguay ?",
+  options:["Dans le calcaire","Dans les laves volcaniques (basaltes)","Dans le granite","Dans le sel gemme"], bonne:1,
+  explication:"Ces géodes se forment dans des cavités laissées par les bulles de gaz des coulées de basalte. Des fluides riches en silice y circulent pendant des milliers d'années et tapissent les parois de cristaux d'améthyste, parfois sur plusieurs mètres de haut." }
 ],
 
 difficile: [
-{
- id:"d01",
- question:"La « chessylite », variété historique d'un minéral de cuivre, doit son nom au gisement français de Chessy-les-Mines. De quelle espèce s'agit-il ?",
- options:["La malachite","L'azurite","La cuprite","La linarite"],
- bonne:1,
- explication:"La chessylite est le nom historique de l'azurite de Chessy-les-Mines (Rhône). Ce gisement, exploité au début du XIXe siècle, a fourni des cristaux d'azurite d'un bleu profond considérés parmi les plus beaux au monde, présents dans les grandes collections des muséums."
-},
-{
- id:"d02",
- question:"Le gisement des Farges, près d'Ussel en Corrèze, est mondialement célèbre pour ses cristaux verts d'un minéral secondaire de plomb. Lequel ?",
- options:["La mimétite","La vanadinite","La pyromorphite","La cérusite"],
- bonne:2,
- explication:"La pyromorphite des Farges, un chlorophosphate de plomb Pb5(PO4)3Cl, est une référence mondiale. Ses cristaux prismatiques vert pomme à vert kaki, exploités surtout dans les années 1970-1980, figurent dans toutes les grandes collections internationales."
-},
-{
- id:"d03",
- question:"En Aveyron, quel gisement est célèbre dans le monde entier pour ses fluorines jaunes ?",
- options:["Valzergues","Le Burc","Montroc","Le Beix"],
- bonne:0,
- explication:"Valzergues (Aveyron) a produit des fluorines jaune miel à jaune d'or d'une qualité exceptionnelle, souvent en cubes très brillants. Le Beix (Puy-de-Dôme) est célèbre pour ses fluorines bleues, Montroc et Le Burc (Tarn) pour d'autres teintes."
-},
-{
- id:"d04",
- question:"L'autunite, phosphate d'uranyle et de calcium décrit près d'Autun, présente une propriété spectaculaire sous lampe UV. Laquelle ?",
- options:["Une phosphorescence rouge durable","Une fluorescence vert vif","Un changement de couleur permanent","Une thermoluminescence bleue"],
- bonne:1,
- explication:"L'autunite présente une fluorescence vert vif caractéristique sous UV, due à l'ion uranyle. C'est un minéral radioactif : il se manipule avec précautions et se conserve dans un contenant adapté, loin des pièces de vie."
-},
-{
- id:"d05",
- question:"Le gisement du Margabal, près d'Entraygues-sur-Truyère (Aveyron), est une localité française classique pour un minéral vert radioactif. Lequel ?",
- options:["La torbernite","La zeunérite","L'uranophane","La brochantite"],
- bonne:0,
- explication:"Le Margabal a fourni de superbes tablettes vertes de torbernite, phosphate hydraté d'uranium et de cuivre. C'est l'une des localités françaises les plus réputées pour cette espèce, très recherchée des collectionneurs de minéraux uranifères."
-},
-{
- id:"d06",
- question:"La mine de La Gardette, près de Bourg-d'Oisans (Isère), est légendaire pour ses quartz. Quelle particularité rend certains de ses cristaux célèbres ?",
- options:["Des inclusions d'or natif visibles","Des macles selon la loi du Japon","Une couleur améthyste intense","Des fantômes de chlorite verte"],
- bonne:1,
- explication:"La Gardette, ancienne mine d'or, a produit des quartz hyalins d'une limpidité extraordinaire et surtout des macles selon la loi du Japon, si célèbres qu'on les appelle en France « macles de La Gardette ». Deux cristaux y forment un angle d'environ 84°33'."
-},
-{
- id:"d07",
- question:"Combien de systèmes cristallins distingue-t-on classiquement en cristallographie ?",
- options:["Cinq","Six","Sept","Neuf"],
- bonne:2,
- explication:"On distingue classiquement sept systèmes cristallins : cubique, quadratique (tétragonal), orthorhombique, monoclinique, triclinique, hexagonal et rhomboédrique (trigonal). Certaines classifications regroupent hexagonal et trigonal en six familles, mais la référence en minéralogie reste sept."
-},
-{
- id:"d08",
- question:"La calcite et l'aragonite illustrent parfaitement le phénomène de polymorphisme. Qu'est-ce que cela signifie ?",
- options:["Elles cristallisent en de multiples couleurs","Elles ont la même composition chimique mais des structures cristallines différentes","Elles se transforment l'une en l'autre à la lumière","Elles contiennent plusieurs éléments chimiques"],
- bonne:1,
- explication:"Calcite et aragonite sont toutes deux du carbonate de calcium (CaCO3), mais la calcite cristallise dans le système rhomboédrique et l'aragonite dans l'orthorhombique. L'aragonite, métastable en surface, se transforme lentement en calcite au fil du temps géologique."
-},
-{
- id:"d09",
- question:"Le « spath d'Islande », variété limpide d'un minéral commun, est célèbre pour un phénomène optique remarquable. Lequel ?",
- options:["La double réfraction (biréfringence)","L'astérisme en étoile à six branches","L'effet œil-de-chat","L'adularescence bleutée"],
- bonne:0,
- explication:"Le spath d'Islande est une calcite parfaitement transparente qui dédouble les images vues au travers : c'est la biréfringence, liée à sa structure rhomboédrique. Ce phénomène a joué un rôle historique majeur dans la compréhension de la polarisation de la lumière."
-},
-{
- id:"d10",
- question:"Qu'est-ce que le pléochroïsme, propriété optique recherchée par les gemmologues ?",
- options:["Le changement de couleur d'un minéral selon la direction d'observation","La capacité à décomposer la lumière en arc-en-ciel","L'apparition d'inclusions colorées sous UV","La variation de couleur selon la température"],
- bonne:0,
- explication:"Un minéral pléochroïque montre des couleurs différentes selon l'axe sous lequel on l'observe, car il absorbe la lumière différemment selon ses directions cristallographiques. La cordiérite (nommée d'après le minéralogiste français Louis Cordier) et la tanzanite en sont des exemples spectaculaires."
-},
-{
- id:"d11",
- question:"La célèbre macle « en fer de lance », en forme de pointe symétrique, est caractéristique de quel minéral ?",
- options:["De la staurotide","Du gypse","De l'orthose","De la cassitérite"],
- bonne:1,
- explication:"La macle en fer de lance est l'association symétrique de deux cristaux de gypse, classique du bassin parisien. Attention au piège : la staurotide forme des macles en croix (les « croisettes de Bretagne ») et l'orthose des macles de Carlsbad, très différentes."
-},
-{
- id:"d12",
- question:"La dolomite doit son nom à un scientifique français du XVIIIe siècle. Qui est-il ?",
- options:["René Just Haüy","Déodat de Dolomieu","Alexandre Brongniart","Jean-Baptiste Romé de l'Isle"],
- bonne:1,
- explication:"Déodat Gratet de Dolomieu (1750-1801), géologue français né à Dolomieu (Isère), a décrit cette roche carbonatée dans les Alpes. Le minéral, puis le massif italien des Dolomites, ont été nommés en son honneur. Haüy et Romé de l'Isle sont les pères de la cristallographie française."
-},
-{
- id:"d13",
- question:"La mine de Sainte-Lucie, à Saint-Léger-de-Peyre (Lozère), est considérée comme une localité de classe mondiale pour un tungstate de plomb. Lequel ?",
- options:["La wulfénite","La schéelite","La stolzite","La ferbérite"],
- bonne:2,
- explication:"Sainte-Lucie a produit des cristaux de stolzite (PbWO4) considérés parmi les plus beaux jamais trouvés au monde. Attention au piège : la wulfénite est un molybdate de plomb, la schéelite un tungstate de calcium et la ferbérite un tungstate de fer."
-},
-{
- id:"d14",
- question:"Dans quel système cristallin le diamant cristallise-t-il ?",
- options:["Hexagonal","Cubique","Quadratique","Rhomboédrique"],
- bonne:1,
- explication:"Le diamant cristallise dans le système cubique, souvent en octaèdres. Il existe bien un polymorphe hexagonal du carbone, la lonsdaléite, extrêmement rare et associée aux impacts de météorites, mais le diamant classique est cubique."
-},
-{
- id:"d15",
- question:"Selon quels critères principaux la classification de Nickel-Strunz, référence internationale, organise-t-elle les minéraux ?",
- options:["Leur couleur et leur éclat","Leur composition chimique et leur structure cristalline","Leur dureté et leur densité","Leur pays de découverte et leur date de description"],
- bonne:1,
- explication:"La classification de Nickel-Strunz range les minéraux en dix classes selon leur chimie (éléments natifs, sulfures, oxydes, carbonates, silicates, etc.), affinées par leur structure cristalline. C'est le système utilisé par la plupart des musées et des bases de données comme Mindat."
-}
+{ id:"d01", question:"La « chessylite », variété historique d'un minéral de cuivre, doit son nom au gisement français de Chessy-les-Mines. De quelle espèce s'agit-il ?",
+  options:["La malachite","L'azurite","La cuprite","La linarite"], bonne:1,
+  explication:"La chessylite est le nom historique de l'azurite de Chessy-les-Mines (Rhône). Ce gisement, exploité au début du XIXe siècle, a fourni des cristaux d'azurite d'un bleu profond considérés parmi les plus beaux au monde, présents dans les grandes collections des muséums." },
+{ id:"d02", question:"Le gisement des Farges, près d'Ussel en Corrèze, est mondialement célèbre pour ses cristaux verts d'un minéral secondaire de plomb. Lequel ?",
+  options:["La mimétite","La vanadinite","La pyromorphite","La cérusite"], bonne:2,
+  explication:"La pyromorphite des Farges, un chlorophosphate de plomb Pb5(PO4)3Cl, est une référence mondiale. Ses cristaux prismatiques vert pomme à vert kaki, exploités surtout dans les années 1970-1980, figurent dans toutes les grandes collections internationales." },
+{ id:"d03", question:"En Aveyron, quel gisement est célèbre dans le monde entier pour ses fluorines jaunes ?",
+  options:["Valzergues","Le Burc","Montroc","Le Beix"], bonne:0,
+  explication:"Valzergues (Aveyron) a produit des fluorines jaune miel à jaune d'or d'une qualité exceptionnelle, souvent en cubes très brillants. Le Beix (Puy-de-Dôme) est célèbre pour ses fluorines bleues, Montroc et Le Burc (Tarn) pour d'autres teintes." },
+{ id:"d04", question:"L'autunite, phosphate d'uranyle et de calcium décrit près d'Autun, présente une propriété spectaculaire sous lampe UV. Laquelle ?",
+  options:["Une phosphorescence rouge durable","Une fluorescence vert vif","Un changement de couleur permanent","Une thermoluminescence bleue"], bonne:1,
+  explication:"L'autunite présente une fluorescence vert vif caractéristique sous UV, due à l'ion uranyle. C'est un minéral radioactif : il se manipule avec précautions et se conserve dans un contenant adapté, loin des pièces de vie." },
+{ id:"d05", question:"Le gisement du Margabal, près d'Entraygues-sur-Truyère (Aveyron), est une localité française classique pour un minéral vert radioactif. Lequel ?",
+  options:["La torbernite","La zeunérite","L'uranophane","La brochantite"], bonne:0,
+  explication:"Le Margabal a fourni de superbes tablettes vertes de torbernite, phosphate hydraté d'uranium et de cuivre. C'est l'une des localités françaises les plus réputées pour cette espèce, très recherchée des collectionneurs de minéraux uranifères." },
+{ id:"d06", question:"La mine de La Gardette, près de Bourg-d'Oisans (Isère), est légendaire pour ses quartz. Quelle particularité rend certains de ses cristaux célèbres ?",
+  options:["Des inclusions d'or natif visibles","Des macles selon la loi du Japon","Une couleur améthyste intense","Des fantômes de chlorite verte"], bonne:1,
+  explication:"La Gardette, ancienne mine d'or, a produit des quartz hyalins d'une limpidité extraordinaire et surtout des macles selon la loi du Japon, si célèbres qu'on les appelle en France « macles de La Gardette ». Deux cristaux y forment un angle d'environ 84°33'." },
+{ id:"d07", question:"Combien de systèmes cristallins distingue-t-on classiquement en cristallographie ?",
+  options:["Cinq","Six","Sept","Neuf"], bonne:2,
+  explication:"On distingue classiquement sept systèmes cristallins : cubique, quadratique, orthorhombique, monoclinique, triclinique, hexagonal et rhomboédrique. Certaines classifications n'en comptent que six en fusionnant hexagonal et trigonal, mais la référence en minéralogie reste sept." },
+{ id:"d08", question:"La calcite et l'aragonite illustrent parfaitement le phénomène de polymorphisme. Qu'est-ce que cela signifie ?",
+  options:["Elles cristallisent en de multiples couleurs","Elles ont la même composition chimique mais des structures cristallines différentes","Elles se transforment l'une en l'autre à la lumière","Elles contiennent plusieurs éléments chimiques"], bonne:1,
+  explication:"Calcite et aragonite sont toutes deux du carbonate de calcium (CaCO3), mais la calcite cristallise dans le système rhomboédrique et l'aragonite dans l'orthorhombique. L'aragonite, métastable en surface, se transforme lentement en calcite au fil du temps géologique." },
+{ id:"d09", question:"Le « spath d'Islande », variété limpide d'un minéral commun, est célèbre pour un phénomène optique remarquable. Lequel ?",
+  options:["La double réfraction (biréfringence)","L'astérisme en étoile à six branches","L'effet œil-de-chat","L'adularescence bleutée"], bonne:0,
+  explication:"Le spath d'Islande est une calcite parfaitement transparente qui dédouble les images vues au travers : c'est la biréfringence, liée à sa structure rhomboédrique. Ce phénomène a joué un rôle historique majeur dans la compréhension de la polarisation de la lumière." },
+{ id:"d10", question:"Qu'est-ce que le pléochroïsme, propriété optique recherchée par les gemmologues ?",
+  options:["Le changement de couleur d'un minéral selon la direction d'observation","La capacité à décomposer la lumière en arc-en-ciel","L'apparition d'inclusions colorées sous UV","La variation de couleur selon la température"], bonne:0,
+  explication:"Un minéral pléochroïque montre des couleurs différentes selon l'axe sous lequel on l'observe, car il absorbe la lumière différemment selon ses directions cristallographiques. La cordiérite, nommée d'après le minéralogiste français Louis Cordier, et la tanzanite en sont des exemples spectaculaires." },
+{ id:"d11", question:"La célèbre macle « en fer de lance », en forme de pointe symétrique, est caractéristique de quel minéral ?",
+  options:["De la staurotide","Du gypse","De l'orthose","De la cassitérite"], bonne:1,
+  explication:"La macle en fer de lance est l'association symétrique de deux cristaux de gypse, classique du bassin parisien. Attention au piège : la staurotide forme des macles en croix (les « croisettes de Bretagne ») et l'orthose des macles de Carlsbad, très différentes." },
+{ id:"d12", question:"La dolomite doit son nom à un scientifique français du XVIIIe siècle. Qui est-il ?",
+  options:["René Just Haüy","Déodat de Dolomieu","Alexandre Brongniart","Jean-Baptiste Romé de l'Isle"], bonne:1,
+  explication:"Déodat Gratet de Dolomieu (1750-1801), géologue français né à Dolomieu (Isère), a décrit cette roche carbonatée dans les Alpes. Le minéral, puis le massif italien des Dolomites, ont été nommés en son honneur. Haüy et Romé de l'Isle sont les pères de la cristallographie française." },
+{ id:"d13", question:"La mine de Sainte-Lucie, à Saint-Léger-de-Peyre (Lozère), est considérée comme une localité de classe mondiale pour un tungstate de plomb. Lequel ?",
+  options:["La wulfénite","La schéelite","La stolzite","La ferbérite"], bonne:2,
+  explication:"Sainte-Lucie a produit des cristaux de stolzite (PbWO4) considérés parmi les plus beaux jamais trouvés au monde. Attention au piège : la wulfénite est un molybdate de plomb, la schéelite un tungstate de calcium et la ferbérite un tungstate de fer." },
+{ id:"d14", question:"Dans quel système cristallin le diamant cristallise-t-il ?",
+  options:["Hexagonal","Cubique","Quadratique","Rhomboédrique"], bonne:1,
+  explication:"Le diamant cristallise dans le système cubique, souvent en octaèdres. Il existe bien un polymorphe hexagonal du carbone, la lonsdaléite, extrêmement rare et associée aux impacts de météorites, mais le diamant classique est cubique." },
+{ id:"d15", question:"Selon quels critères principaux la classification de Nickel-Strunz, référence internationale, organise-t-elle les minéraux ?",
+  options:["Leur couleur et leur éclat","Leur composition chimique et leur structure cristalline","Leur dureté et leur densité","Leur pays de découverte et leur date"], bonne:1,
+  explication:"La classification de Nickel-Strunz range les minéraux en dix classes selon leur chimie (éléments natifs, sulfures, oxydes, carbonates, silicates, etc.), affinées par leur structure cristalline. C'est le système utilisé par la plupart des musées et des bases de données comme Mindat." }
+],
+
+expert: [
+{ id:"e01", question:"Le réalgar, minéral rouge orangé prisé des collectionneurs, présente un danger particulier lié à la lumière. Lequel ?",
+  options:["Il devient radioactif au soleil","Exposé longtemps à la lumière, il se désagrège en une poudre d'arsenic plus facile à disperser","Il libère du mercure gazeux","Il s'enflamme spontanément"], bonne:1,
+  explication:"Le réalgar est un sulfure d'arsenic. Le risque principal est l'empoisonnement à l'arsenic par ingestion (mains portées à la bouche) ou inhalation de poussière. Particularité : exposé durablement à la lumière, il se transforme en pararéalgar et finit par se réduire en poudre jaune-orangé friable, ce qui augmente le risque de dispersion. On le conserve à l'abri de la lumière et on se lave les mains après manipulation." },
+{ id:"e02", question:"Le cinabre, source historique du pigment vermillon, devient réellement dangereux dans quelle situation ?",
+  options:["Simplement posé dans une vitrine","Lorsqu'on le scie, le ponce ou le chauffe, ce qui libère du mercure","Exposé à la lumière du jour","Au contact d'un aimant"], bonne:1,
+  explication:"Le cinabre est du sulfure de mercure (HgS), assez stable tant qu'on ne l'agresse pas. Le danger apparaît au sciage, au polissage ou au chauffage, qui libèrent poussières ou vapeurs de mercure, neurotoxique. Un cristal tenu proprement puis les mains lavées pose peu de risque ; on ne le travaille jamais sans protection." },
+{ id:"e03", question:"La crocoïte, splendide minéral orange de Dundas en Tasmanie, cumule deux toxicités. Lesquelles ?",
+  options:["Plomb et chrome","Arsenic et antimoine","Mercure et cadmium","Uranium et thorium"], bonne:0,
+  explication:"La crocoïte est un chromate de plomb. Elle associe la toxicité du plomb (saturnisme) à celle du chrome sous forme de chromate, cancérigène reconnu. Manipulation avec lavage des mains, pas de poussière, et surtout jamais d'élixir par immersion." },
+{ id:"e04", question:"Pourquoi un collectionneur conservant de l'autunite ou de la torbernite doit-il surtout ventiler l'espace plutôt que le blinder de plomb ?",
+  options:["Parce que le plomb réagit avec l'uranium","Parce que le risque domestique majeur est l'accumulation de radon, un gaz radioactif","Parce que ces minéraux ne sont pas radioactifs","Parce qu'aucun blindage n'arrête leur rayonnement"], bonne:1,
+  explication:"Ces phosphates d'uranium émettent un rayonnement, mais le danger domestique principal vient du radon, gaz radioactif issu de la désintégration de l'uranium, qui s'accumule dans un espace clos et se respire. Aérer réduit ce risque bien plus efficacement qu'un blindage. On limite aussi le temps de contact et on évite les poussières." },
+{ id:"e05", question:"La hutchinsonite, sulfosel rare recherché des collectionneurs avertis, est parmi les minéraux les plus dangereux à manipuler à cause de sa teneur en :",
+  options:["Thallium","Fer","Calcium","Silicium"], bonne:0,
+  explication:"La hutchinsonite contient du thallium, associé à l'arsenic et au plomb. Le thallium est un poison violent, absorbable même par la peau. C'est typiquement un minéral qu'on ne manipule qu'avec des gants, sans jamais toucher bouche ou yeux, et que beaucoup de collectionneurs préfèrent laisser sous cloche." },
+{ id:"e06", question:"Quelle règle de sécurité s'applique à TOUS les minéraux contenant plomb, arsenic, mercure, cuivre soluble ou radioactivité, quelle que soit leur beauté ?",
+  options:["Ne jamais préparer d'élixir par immersion directe, ni les laisser en contact prolongé avec la bouche ou la peau","Les exposer au soleil pour les recharger","Les rincer à l'eau chaude avant chaque usage","Les porter à même la peau pour en tirer les bienfaits"], bonne:0,
+  explication:"Aucun minéral toxique ne doit servir à un élixir par immersion directe, ni rester en contact prolongé avec la peau ou la bouche. Pour ces espèces, on privilégie la méthode indirecte (le minéral dans un contenant scellé, hors de l'eau) ou l'on s'abstient. Manipulation propre, lavage des mains, stockage identifié hors de portée des enfants et des animaux." },
+{ id:"e07", question:"Parmi ces minéraux, lequel est une forme d'amiante dont l'inhalation des fibres peut provoquer un mésothéliome ?",
+  options:["La crocidolite (riébeckite fibreuse)","La célestine","La rhodochrosite","La sodalite"], bonne:0,
+  explication:"La crocidolite, ou amiante bleu, est la variété fibreuse de la riébeckite. L'inhalation de ses fibres microscopiques peut causer asbestose et mésothéliome, un cancer de la plèvre. On ne manipule jamais un échantillon fibreux à sec, et beaucoup de collectionneurs les enrobent ou les évitent totalement." },
+{ id:"e08", question:"Le quartz possède une propriété physique exploitée dans les montres et les briquets. Laquelle ?",
+  options:["La piézoélectricité","Le ferromagnétisme","La radioactivité","La supraconductivité"], bonne:0,
+  explication:"Comprimé ou déformé, un cristal de quartz génère une tension électrique, et inversement : c'est la piézoélectricité. Elle fait jaillir l'étincelle des briquets et fait vibrer le quartz à une fréquence stable dans les montres, d'où leur précision." },
+{ id:"e09", question:"Le grenat n'est pas une espèce unique mais un groupe. Lequel de ces noms n'est PAS un grenat ?",
+  options:["L'almandin","Le pyrope","Le grossulaire","La cordiérite"], bonne:3,
+  explication:"Almandin, pyrope, spessartine, grossulaire, andradite et uvarovite sont les principaux pôles du groupe des grenats, qui forment entre eux des solutions solides. La cordiérite, elle, est un silicate à part, célèbre pour son pléochroïsme et non membre du groupe." },
+{ id:"e10", question:"L'astérisme, cette étoile lumineuse qui apparaît sur certains rubis et saphirs taillés en cabochon, est dû à quoi ?",
+  options:["À une fracture interne","À de fines inclusions d'aiguilles orientées (souvent du rutile)","À un traitement thermique","À la fluorescence de la pierre"], bonne:1,
+  explication:"L'astérisme provient de fines inclusions aciculaires, souvent des aiguilles de rutile, orientées selon la symétrie du cristal. La lumière s'y réfléchit et dessine une étoile à quatre ou six branches, mise en valeur par une taille en cabochon. Même principe pour l'effet œil-de-chat." },
+{ id:"e11", question:"La labradorite est recherchée pour un jeu de couleurs bleu-vert changeant selon l'angle. Comment nomme-t-on ce phénomène ?",
+  options:["L'opalescence","La labradorescence","La fluorescence","L'astérisme"], bonne:1,
+  explication:"La labradorescence est un jeu de couleurs iridescent propre à la labradorite (un feldspath), causé par la diffraction de la lumière sur de fines lamelles internes. Le terme dérive directement du minéral. À ne pas confondre avec l'adularescence, le reflet laiteux de la pierre de lune." },
+{ id:"e12", question:"Qu'est-ce qu'une pseudomorphose en minéralogie ?",
+  options:["Un minéral qui conserve la forme d'un autre qu'il a remplacé","Un cristal maclé","Un minéral fluorescent","Un faux minéral synthétique"], bonne:0,
+  explication:"Une pseudomorphose se produit quand un minéral en remplace un autre en gardant sa forme extérieure. Exemples classiques : la limonite « d'après pyrite », qui garde les cubes de la pyrite disparue, ou le bois fossilisé où la silice a remplacé la matière végétale en conservant sa structure." },
+{ id:"e13", question:"Le célèbre gisement de Franklin (New Jersey) est mondialement connu pour ses minéraux qui, sous UV, présentent quoi ?",
+  options:["Une radioactivité intense","Des fluorescences vives de plusieurs couleurs (willemite verte, calcite rouge)","Un magnétisme puissant","Une double réfraction"], bonne:1,
+  explication:"Franklin et Sterling Hill sont la Mecque des fluorescences : sous UV, la willemite s'illumine en vert et la calcite en rouge orangé, souvent sur le même échantillon. Ces couleurs sont dues à des éléments activateurs comme le manganèse présents en traces dans le réseau cristallin." },
+{ id:"e14", question:"L'opale est souvent qualifiée de « minéraloïde » plutôt que de vrai minéral. Pourquoi ?",
+  options:["Parce qu'elle est trop tendre","Parce qu'elle n'a pas de structure cristalline ordonnée (elle est amorphe et hydratée)","Parce qu'elle est organique","Parce qu'elle est artificielle"], bonne:1,
+  explication:"Contrairement à un minéral au sens strict, l'opale n'a pas de réseau cristallin ordonné : c'est de la silice hydratée amorphe. Son célèbre jeu de couleurs vient de l'arrangement régulier de microsphères de silice qui diffractent la lumière, et non d'une structure cristalline." },
+{ id:"e15", question:"Sur le terrain, la barytine surprend souvent le débutant par une propriété physique très marquée. Laquelle ?",
+  options:["Elle est anormalement lourde pour un minéral non métallique","Elle est magnétique","Elle brille dans le noir","Elle fond dans la main"], bonne:0,
+  explication:"La barytine est un sulfate de baryum dont la densité élevée (environ 4,5) surprend : un échantillon paraît bien plus lourd qu'un quartz de taille équivalente. Ce « poids en main » inattendu pour un minéral clair et non métallique est un bon indice d'identification de terrain." }
 ]
 };
 
 /* ============================================================
-   STOCKAGE (window.storage si dispo, sinon mémoire de session)
+   STOCKAGE — localStorage (fonctionne sur GitHub Pages),
+   avec repli sur window.storage puis sur la mémoire de session
    ============================================================ */
 const memoire = {};
 const store = {
   async get(cle){
     try{
+      const v = localStorage.getItem(cle);
+      if(v !== null) return JSON.parse(v);
+    }catch(e){ /* localStorage indisponible : on tente les autres voies */ }
+    try{
       if(window.storage){
         const r = await window.storage.get(cle);
         if(r && r.value) return JSON.parse(r.value);
       }
-    }catch(e){ /* clé absente ou stockage indisponible */ }
+    }catch(e){ /* window.storage indisponible */ }
     return memoire[cle] !== undefined ? memoire[cle] : null;
   },
   async set(cle, valeur){
     memoire[cle] = valeur;
-    try{
-      if(window.storage) await window.storage.set(cle, JSON.stringify(valeur));
-    }catch(e){ /* on garde au moins la mémoire de session */ }
+    try{ localStorage.setItem(cle, JSON.stringify(valeur)); }catch(e){ /* échec silencieux */ }
+    try{ if(window.storage) await window.storage.set(cle, JSON.stringify(valeur)); }catch(e){ /* échec silencieux */ }
   }
 };
-const CLE_QUIZ = "quiz-mineralogie-quiz-v2";
-const CLE_STATS = "quiz-mineralogie-stats-v2";
+const CLE_QUIZ = "quiz-mineralogie-quiz-v3";
+const CLE_STATS = "quiz-mineralogie-stats-v3";
 
 /* ============================================================
    ÉTAT
@@ -554,7 +506,7 @@ const CLE_STATS = "quiz-mineralogie-stats-v2";
 let quiz = JSON.parse(JSON.stringify(QUIZ_DEFAUT));
 let stats = { parties: [] };
 let joueur = "";
-let niveauCourant = null;   // "facile" ou "difficile"
+let niveauCourant = null;   // "facile" | "difficile" | "expert"
 let indexQuestion = 0;
 let score = 0;
 let serieCourante = 0;
@@ -563,8 +515,9 @@ let reponsesPartie = [];
 let debutPartie = 0;
 let adminConnecte = false;
 
+const NIVEAUX = ["facile","difficile","expert"];
 function questionsActives(){ return quiz[niveauCourant]; }
-function libelleNiveau(n){ return n === "facile" ? "Facile" : "Difficile"; }
+function libelleNiveau(n){ return n === "facile" ? "Facile" : (n === "difficile" ? "Difficile" : "Expert"); }
 
 /* ============================================================
    SON DE VICTOIRE (carillon cristallin montant)
@@ -574,7 +527,7 @@ function sonVictoire(){
   try{
     if(!ctxAudio) ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
     const t = ctxAudio.currentTime;
-    const notes = [880, 1174.66, 1567.98]; // La5, Ré6, Sol6 : arpège lumineux
+    const notes = [880, 1174.66, 1567.98];
     notes.forEach((f, i)=>{
       const osc = ctxAudio.createOscillator();
       const gain = ctxAudio.createGain();
@@ -588,17 +541,17 @@ function sonVictoire(){
       osc.start(debut);
       osc.stop(debut + 0.55);
     });
-  }catch(e){ /* audio non disponible : le quiz continue sans son */ }
+  }catch(e){ /* audio non disponible */ }
 }
 
 /* ============================================================
-   SON DE DÉFAITE (descente grave, sombre et feutrée)
+   SON DE DÉFAITE (descente grave et feutrée)
    ============================================================ */
 function sonDefaite(){
   try{
     if(!ctxAudio) ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
     const t = ctxAudio.currentTime;
-    const notes = [220, 174.61, 130.81]; // La3, Fa3, Do3 : descente mineure
+    const notes = [220, 174.61, 130.81];
     notes.forEach((f, i)=>{
       const osc = ctxAudio.createOscillator();
       const gain = ctxAudio.createGain();
@@ -613,7 +566,7 @@ function sonDefaite(){
       osc.start(debut);
       osc.stop(debut + 0.5);
     });
-  }catch(e){ /* audio non disponible : le quiz continue sans son */ }
+  }catch(e){ /* audio non disponible */ }
 }
 
 /* ============================================================
@@ -641,10 +594,12 @@ $("ongletAdmin").addEventListener("click", ()=>{
    ============================================================ */
 $("carteFacile").addEventListener("click", ()=> choisirNiveau("facile"));
 $("carteDifficile").addEventListener("click", ()=> choisirNiveau("difficile"));
+$("carteExpert").addEventListener("click", ()=> choisirNiveau("expert"));
 function choisirNiveau(n){
   niveauCourant = n;
   $("carteFacile").classList.toggle("choisi-facile", n === "facile");
   $("carteDifficile").classList.toggle("choisi-difficile", n === "difficile");
+  $("carteExpert").classList.toggle("choisi-expert", n === "expert");
   $("erreurDemarrage").classList.add("cachee");
 }
 
@@ -663,7 +618,7 @@ function demarrerQuiz(){
     return;
   }
   if(!niveauCourant){
-    $("erreurDemarrage").textContent = "Choisissez un niveau : facile ou difficile.";
+    $("erreurDemarrage").textContent = "Choisissez un niveau : facile, difficile ou expert.";
     $("erreurDemarrage").classList.remove("cachee");
     return;
   }
@@ -732,13 +687,8 @@ async function finirQuiz(){
   const qs = questionsActives();
   const duree = Math.round((Date.now() - debutPartie)/1000);
   const partie = {
-    nom: joueur,
-    niveau: niveauCourant,
-    date: new Date().toISOString(),
-    score: score,
-    total: qs.length,
-    duree: duree,
-    reponses: reponsesPartie
+    nom: joueur, niveau: niveauCourant, date: new Date().toISOString(),
+    score: score, total: qs.length, duree: duree, reponses: reponsesPartie
   };
   stats.parties.push(partie);
   await store.set(CLE_STATS, stats);
@@ -771,13 +721,8 @@ async function finirQuiz(){
   afficher("ecranResultats");
 }
 
-$("btnRejouer").addEventListener("click", ()=>{
-  afficher("ecranNom");
-});
-$("btnAutreNiveau").addEventListener("click", ()=>{
-  choisirNiveau(niveauCourant === "facile" ? "difficile" : "facile");
-  afficher("ecranNom");
-});
+$("btnRejouer").addEventListener("click", ()=> afficher("ecranNom"));
+$("btnChangerNiveau").addEventListener("click", ()=> afficher("ecranNom"));
 
 /* ============================================================
    ADMIN : CONNEXION
@@ -799,24 +744,26 @@ function connexionAdmin(){
    ============================================================ */
 function rafraichirAdmin(){
   const parties = stats.parties;
-  const pf = parties.filter(p => p.niveau === "facile");
-  const pd = parties.filter(p => p.niveau !== "facile");
   $("admTotalParties").textContent = parties.length;
-  $("admPartiesFacile").textContent = pf.length;
-  $("admPartiesDifficile").textContent = pd.length;
-  $("admMoyenneFacile").textContent = pf.length ? Math.round(pf.reduce((s,p)=> s + p.score/p.total, 0)/pf.length*100) + " %" : "–";
-  $("admMoyenneDifficile").textContent = pd.length ? Math.round(pd.reduce((s,p)=> s + p.score/p.total, 0)/pd.length*100) + " %" : "–";
   $("admMeilleur").textContent = parties.length ? parties.reduce((m,p)=> Math.max(m, Math.round(p.score/p.total*100)), 0) + " %" : "–";
+
+  NIVEAUX.forEach(niv=>{
+    const sous = parties.filter(p => p.niveau === niv);
+    const maj = niv.charAt(0).toUpperCase() + niv.slice(1);
+    $("adm"+maj+"Nb").textContent = sous.length;
+    $("adm"+maj+"Moy").textContent = sous.length ? Math.round(sous.reduce((s,p)=> s + p.score/p.total, 0)/sous.length*100) + " %" : "–";
+  });
 
   construireTaux("facile", $("admTauxFacile"));
   construireTaux("difficile", $("admTauxDifficile"));
+  construireTaux("expert", $("admTauxExpert"));
 
   const corps = $("admHistorique");
   corps.innerHTML = "";
   [...parties].reverse().forEach(p=>{
     const tr = document.createElement("tr");
     const d = new Date(p.date);
-    const niv = p.niveau === "facile" ? "facile" : "difficile";
+    const niv = NIVEAUX.includes(p.niveau) ? p.niveau : "facile";
     tr.innerHTML = "<td>" + echapper(p.nom) + "</td>" +
       "<td><span class='badge-niveau " + niv + "'>" + libelleNiveau(niv) + "</span></td>" +
       "<td>" + d.toLocaleDateString("fr-FR") + " " + d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) + "</td>" +
@@ -830,7 +777,7 @@ function rafraichirAdmin(){
 
 function construireTaux(niveau, cible){
   cible.innerHTML = "";
-  const parties = stats.parties.filter(p => (p.niveau === "facile") === (niveau === "facile"));
+  const parties = stats.parties.filter(p => p.niveau === niveau);
   quiz[niveau].forEach((q, i)=>{
     let bonnes = 0, total = 0;
     parties.forEach(p=>{
@@ -862,11 +809,14 @@ $("btnResetStats").addEventListener("click", async ()=>{
 });
 
 /* ============================================================
-   ADMIN : ÉDITEUR DES DEUX QUIZ
+   ADMIN : ÉDITEUR DES TROIS QUIZ
    ============================================================ */
+function idZone(niveau){
+  return niveau === "facile" ? "admQuestionsFacile" : (niveau === "difficile" ? "admQuestionsDifficile" : "admQuestionsExpert");
+}
 function construireEditeur(){
-  ["facile","difficile"].forEach(niveau=>{
-    const zone = niveau === "facile" ? $("admQuestionsFacile") : $("admQuestionsDifficile");
+  NIVEAUX.forEach(niveau=>{
+    const zone = $(idZone(niveau));
     zone.innerHTML = "";
     quiz[niveau].forEach((q, qi)=>{
       const det = document.createElement("details");
@@ -909,13 +859,14 @@ function ajouterQuestion(niveau){
     explication: "Explication de la bonne réponse."
   });
   construireEditeur();
-  const zone = niveau === "facile" ? $("admQuestionsFacile") : $("admQuestionsDifficile");
+  const zone = $(idZone(niveau));
   const derniers = zone.querySelectorAll("details");
   derniers[derniers.length-1].open = true;
   derniers[derniers.length-1].scrollIntoView({behavior:"smooth", block:"center"});
 }
 $("btnAjouterFacile").addEventListener("click", ()=> ajouterQuestion("facile"));
 $("btnAjouterDifficile").addEventListener("click", ()=> ajouterQuestion("difficile"));
+$("btnAjouterExpert").addEventListener("click", ()=> ajouterQuestion("expert"));
 
 function lireEditeur(){
   document.querySelectorAll("#ecranAdmin [data-champ]").forEach(el=>{
@@ -932,13 +883,13 @@ function lireEditeur(){
 $("btnSauvegarder").addEventListener("click", async ()=>{
   lireEditeur();
   await store.set(CLE_QUIZ, quiz);
-  $("msgSauvegarde").textContent = "Modifications enregistrées (" + quiz.facile.length + " questions faciles, " + quiz.difficile.length + " difficiles).";
+  $("msgSauvegarde").textContent = "Modifications enregistrées (" + quiz.facile.length + " faciles, " + quiz.difficile.length + " difficiles, " + quiz.expert.length + " expert).";
   setTimeout(()=> $("msgSauvegarde").textContent = "", 4000);
   rafraichirAdmin();
 });
 
 $("btnRestaurer").addEventListener("click", async ()=>{
-  if(confirm("Restaurer les 30 questions d'origine (15 faciles + 15 difficiles) ? Vos modifications seront perdues.")){
+  if(confirm("Restaurer les 45 questions d'origine (15 par niveau) ? Vos modifications seront perdues.")){
     quiz = JSON.parse(JSON.stringify(QUIZ_DEFAUT));
     await store.set(CLE_QUIZ, quiz);
     rafraichirAdmin();
@@ -950,7 +901,7 @@ $("btnRestaurer").addEventListener("click", async ()=>{
    ============================================================ */
 (async function init(){
   const qSauve = await store.get(CLE_QUIZ);
-  if(qSauve && qSauve.facile && qSauve.difficile) quiz = qSauve;
+  if(qSauve && qSauve.facile && qSauve.difficile && qSauve.expert) quiz = qSauve;
   const sSauve = await store.get(CLE_STATS);
   if(sSauve && Array.isArray(sSauve.parties)) stats = sSauve;
 })();
