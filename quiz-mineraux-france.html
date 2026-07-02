@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz de Minéralogie</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --nuit:#0d0b13;
+  --panneau:#161221;
+  --panneau2:#1d1830;
+  --brume:#2a2440;
+  --argent:#cfccdc;
+  --argent-pale:#8f8aa6;
+  --uv:#9d7bff;
+  --autunite:#7dffb0;
+  --grenat:#e0596d;
+  --or-pale:#d9d4ec;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--nuit);
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(157,123,255,.08), transparent);
+  color:var(--argent);
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;
+  line-height:1.6;
+}
+.conteneur{max-width:880px;margin:0 auto;padding:24px 18px 60px;}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:28px;}
+.titre-site{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.7rem;font-weight:600;color:var(--or-pale);letter-spacing:.03em;display:flex;align-items:center;gap:10px;}
+.cristal{width:30px;height:30px;filter:drop-shadow(0 0 6px rgba(125,255,176,.5));}
+nav{display:flex;gap:8px;}
+.onglet{
+  background:transparent;border:1px solid var(--brume);color:var(--argent-pale);
+  padding:8px 18px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:.85rem;
+  transition:all .25s;
+}
+.onglet:hover{border-color:var(--uv);color:var(--argent);}
+.onglet.actif{background:var(--uv);border-color:var(--uv);color:#0d0b13;font-weight:600;}
+.carte{
+  background:var(--panneau);border:1px solid var(--brume);border-radius:14px;
+  padding:32px 28px;box-shadow:0 8px 40px rgba(0,0,0,.45);
+}
+h1,h2,h3{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;color:var(--or-pale);}
+h1{font-size:2.1rem;line-height:1.2;margin-bottom:8px;}
+h2{font-size:1.5rem;margin-bottom:14px;}
+h3{font-size:1.25rem;margin:22px 0 10px;}
+.sous-titre{color:var(--argent-pale);font-size:.92rem;margin-bottom:24px;}
+input[type=text],input[type=password],textarea,select{
+  width:100%;background:var(--nuit);border:1px solid var(--brume);color:var(--argent);
+  padding:12px 14px;border-radius:8px;font-family:inherit;font-size:.95rem;
+}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--uv);outline-offset:1px;border-color:var(--uv);}
+.btn{
+  background:var(--uv);color:#0d0b13;border:none;padding:12px 26px;border-radius:8px;
+  font-family:inherit;font-weight:600;font-size:.95rem;cursor:pointer;transition:all .2s;
+}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
+.btn.secondaire{background:transparent;border:1px solid var(--brume);color:var(--argent);}
+.btn.secondaire:hover{border-color:var(--uv);}
+.btn.danger{background:transparent;border:1px solid var(--grenat);color:var(--grenat);}
+.btn.danger:hover{background:var(--grenat);color:#0d0b13;}
+.cachee{display:none !important;}
+
+/* Sélecteur de niveau */
+.choix-niveau{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+.niveau-carte{
+  background:var(--panneau2);border:2px solid var(--brume);border-radius:12px;
+  padding:20px 18px;cursor:pointer;text-align:left;font-family:inherit;color:var(--argent);
+  transition:all .2s;
+}
+.niveau-carte:hover{border-color:var(--argent-pale);}
+.niveau-carte.choisi-facile{border-color:var(--autunite);box-shadow:0 0 16px rgba(125,255,176,.25);}
+.niveau-carte.choisi-difficile{border-color:var(--uv);box-shadow:0 0 16px rgba(157,123,255,.3);}
+.niveau-titre{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.3rem;font-weight:600;margin-bottom:4px;}
+.niveau-titre.vert{color:var(--autunite);}
+.niveau-titre.violet{color:var(--uv);}
+.niveau-desc{font-size:.83rem;color:var(--argent-pale);}
+@media (max-width:560px){.choix-niveau{grid-template-columns:1fr;}}
+
+/* Quiz */
+.progression{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:.85rem;color:var(--argent-pale);flex-wrap:wrap;gap:6px;}
+.badge-niveau{padding:2px 12px;border-radius:12px;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+.badge-niveau.facile{background:rgba(125,255,176,.15);color:var(--autunite);}
+.badge-niveau.difficile{background:rgba(157,123,255,.18);color:var(--uv);}
+.barre{height:5px;background:var(--brume);border-radius:3px;margin-bottom:26px;overflow:hidden;}
+.barre-remplie{height:100%;background:linear-gradient(90deg,var(--uv),var(--autunite));border-radius:3px;transition:width .4s;}
+.question-texte{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.45rem;font-weight:600;color:var(--or-pale);margin-bottom:24px;line-height:1.35;}
+.options{display:grid;gap:12px;}
+.option{
+  background:var(--panneau2);border:1px solid var(--brume);border-radius:10px;
+  padding:14px 18px;cursor:pointer;text-align:left;color:var(--argent);
+  font-family:inherit;font-size:.98rem;transition:all .2s;
+}
+.option:hover:not(:disabled){border-color:var(--uv);transform:translateX(4px);}
+.option:disabled{cursor:default;opacity:.85;}
+.option.bonne{
+  border-color:var(--autunite);background:rgba(125,255,176,.1);color:var(--autunite);
+  box-shadow:0 0 18px rgba(125,255,176,.35), inset 0 0 12px rgba(125,255,176,.08);
+  animation:lueur 1.2s ease;
+}
+.option.mauvaise{border-color:var(--grenat);background:rgba(224,89,109,.08);color:var(--grenat);}
+@keyframes lueur{
+  0%{box-shadow:0 0 0 rgba(125,255,176,0);}
+  40%{box-shadow:0 0 34px rgba(125,255,176,.65);}
+  100%{box-shadow:0 0 18px rgba(125,255,176,.35);}
+}
+.explication{
+  margin-top:22px;background:var(--nuit);border-left:3px solid var(--uv);
+  border-radius:0 10px 10px 0;padding:16px 18px;font-size:.93rem;color:var(--argent);
+}
+.explication strong{color:var(--uv);}
+.pied-question{margin-top:24px;display:flex;justify-content:flex-end;}
+
+/* Résultats */
+.score-final{
+  font-family:'Cormorant Garamond',Georgia,serif;font-size:3.4rem;font-weight:700;
+  text-align:center;color:var(--autunite);text-shadow:0 0 24px rgba(125,255,176,.4);
+  margin:10px 0 4px;
+}
+.mention{text-align:center;color:var(--argent-pale);margin-bottom:26px;font-style:italic;}
+.grille-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px;}
+.stat-bloc{background:var(--panneau2);border:1px solid var(--brume);border-radius:10px;padding:16px;text-align:center;}
+.stat-valeur{font-size:1.6rem;font-weight:600;color:var(--uv);}
+.stat-libelle{font-size:.78rem;color:var(--argent-pale);text-transform:uppercase;letter-spacing:.06em;}
+.recap-item{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--brume);font-size:.9rem;}
+.recap-item:last-child{border-bottom:none;}
+.pastille{min-width:22px;text-align:center;}
+.centre{display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap;}
+
+/* Admin */
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:12px;}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--brume);}
+th{color:var(--argent-pale);font-weight:500;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;}
+.q-admin{background:var(--panneau2);border:1px solid var(--brume);border-radius:10px;padding:18px;margin-bottom:16px;}
+.q-admin summary{cursor:pointer;font-weight:600;color:var(--or-pale);font-family:'Cormorant Garamond',Georgia,serif;font-size:1.1rem;}
+.champ{margin-top:12px;}
+.champ label{display:block;font-size:.8rem;color:var(--argent-pale);margin-bottom:5px;}
+.ligne-option{display:flex;gap:10px;align-items:center;margin-top:8px;}
+.ligne-option input[type=radio]{accent-color:var(--autunite);width:18px;height:18px;}
+.taux{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.8rem;}
+.taux.haut{background:rgba(125,255,176,.15);color:var(--autunite);}
+.taux.moyen{background:rgba(157,123,255,.15);color:var(--uv);}
+.taux.bas{background:rgba(224,89,109,.15);color:var(--grenat);}
+.avertissement{font-size:.82rem;color:var(--argent-pale);font-style:italic;margin-top:10px;}
+.sep-niveau{border:none;border-top:1px solid var(--brume);margin:30px 0;}
+@media (max-width:560px){
+  .carte{padding:22px 16px;}
+  h1{font-size:1.6rem;}
+  .question-texte{font-size:1.2rem;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;}
+}
+</style>
+</head>
+<body>
+<div class="conteneur">
+
+<header>
+  <div class="titre-site">
+    <svg class="cristal" viewBox="0 0 32 32" fill="none">
+      <path d="M16 2 L22 12 L16 30 L10 12 Z" fill="#7dffb0" opacity=".85"/>
+      <path d="M16 2 L10 12 L16 30" fill="#4ecb8a" opacity=".6"/>
+      <path d="M6 14 L9 19 L6 26 L3 19 Z" fill="#9d7bff" opacity=".8"/>
+      <path d="M26 16 L29 20 L26 27 L23 20 Z" fill="#9d7bff" opacity=".6"/>
+    </svg>
+    Quiz de Minéralogie
+  </div>
+  <nav>
+    <button class="onglet actif" id="ongletQuiz">Quiz</button>
+    <button class="onglet" id="ongletAdmin">Administration</button>
+  </nav>
+</header>
+
+<!-- ================= ÉCRAN NOM + NIVEAU ================= -->
+<section class="carte" id="ecranNom">
+  <h1>Quiz de minéralogie</h1>
+  <p class="sous-titre">Deux quiz de 15 questions chacun. Chaque réponse est expliquée en détail.</p>
+  <div class="champ">
+    <label for="champNom">Votre nom</label>
+    <input type="text" id="champNom" placeholder="Entrez votre nom pour commencer" maxlength="40">
+  </div>
+  <h3>Choisissez votre niveau</h3>
+  <div class="choix-niveau">
+    <button class="niveau-carte" id="carteFacile">
+      <div class="niveau-titre vert">Facile</div>
+      <div class="niveau-desc">Les fondamentaux : échelle de Mohs, grandes familles, minéraux célèbres, propriétés de base.</div>
+    </button>
+    <button class="niveau-carte" id="carteDifficile">
+      <div class="niveau-titre violet">Difficile</div>
+      <div class="niveau-desc">Pour connaisseurs : cristallographie, polymorphes, localités types et gisements français de légende.</div>
+    </button>
+  </div>
+  <div style="margin-top:24px;">
+    <button class="btn" id="btnCommencer">Commencer le quiz</button>
+  </div>
+  <p id="erreurDemarrage" style="color:var(--grenat);font-size:.85rem;margin-top:10px;" class="cachee"></p>
+</section>
+
+<!-- ================= ÉCRAN QUIZ ================= -->
+<section class="carte cachee" id="ecranQuiz">
+  <div class="progression">
+    <span id="compteur">Question 1 / 15</span>
+    <span class="badge-niveau facile" id="badgeNiveau">Facile</span>
+    <span id="nomJoueur"></span>
+  </div>
+  <div class="barre"><div class="barre-remplie" id="barreProgression" style="width:0%"></div></div>
+  <div class="question-texte" id="texteQuestion"></div>
+  <div class="options" id="zoneOptions"></div>
+  <div class="explication cachee" id="zoneExplication"></div>
+  <div class="pied-question">
+    <button class="btn cachee" id="btnSuivant">Question suivante</button>
+  </div>
+</section>
+
+<!-- ================= ÉCRAN RÉSULTATS ================= -->
+<section class="carte cachee" id="ecranResultats">
+  <h1 style="text-align:center;">Résultats</h1>
+  <p style="text-align:center;"><span class="badge-niveau facile" id="badgeResultat">Facile</span></p>
+  <div class="score-final" id="scoreFinal"></div>
+  <div class="mention" id="mentionFinale"></div>
+  <div class="grille-stats">
+    <div class="stat-bloc"><div class="stat-valeur" id="statPourcent"></div><div class="stat-libelle">Réussite</div></div>
+    <div class="stat-bloc"><div class="stat-valeur" id="statTemps"></div><div class="stat-libelle">Durée</div></div>
+    <div class="stat-bloc"><div class="stat-valeur" id="statSerie"></div><div class="stat-libelle">Meilleure série</div></div>
+  </div>
+  <h2>Détail des réponses</h2>
+  <div id="recapReponses"></div>
+  <div class="centre">
+    <button class="btn" id="btnRejouer">Rejouer</button>
+    <button class="btn secondaire" id="btnAutreNiveau">Essayer l'autre niveau</button>
+  </div>
+</section>
+
+<!-- ================= ADMIN : MOT DE PASSE ================= -->
+<section class="carte cachee" id="ecranMdp">
+  <h1>Espace administrateur</h1>
+  <p class="sous-titre">Accès protégé. Entrez le mot de passe.</p>
+  <div class="champ">
+    <label for="champMdp">Mot de passe</label>
+    <input type="password" id="champMdp" placeholder="••••">
+  </div>
+  <p id="erreurMdp" style="color:var(--grenat);font-size:.85rem;margin-top:8px;" class="cachee">Mot de passe incorrect.</p>
+  <div style="margin-top:20px;">
+    <button class="btn" id="btnConnexion">Se connecter</button>
+  </div>
+</section>
+
+<!-- ================= ADMIN : PANNEAU ================= -->
+<section class="cachee" id="ecranAdmin">
+  <div class="carte" style="margin-bottom:20px;">
+    <h1>Statistiques</h1>
+    <div class="grille-stats" style="margin-top:18px;">
+      <div class="stat-bloc"><div class="stat-valeur" id="admTotalParties">0</div><div class="stat-libelle">Parties jouées</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admPartiesFacile">0</div><div class="stat-libelle">Parties facile</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admPartiesDifficile">0</div><div class="stat-libelle">Parties difficile</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admMoyenneFacile">–</div><div class="stat-libelle">Moyenne facile</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admMoyenneDifficile">–</div><div class="stat-libelle">Moyenne difficile</div></div>
+      <div class="stat-bloc"><div class="stat-valeur" id="admMeilleur">–</div><div class="stat-libelle">Meilleur score</div></div>
+    </div>
+    <h2>Taux de réussite — quiz facile</h2>
+    <div id="admTauxFacile"></div>
+    <h2 style="margin-top:26px;">Taux de réussite — quiz difficile</h2>
+    <div id="admTauxDifficile"></div>
+    <h2 style="margin-top:26px;">Historique des parties</h2>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>Joueur</th><th>Niveau</th><th>Date</th><th>Score</th><th>%</th></tr></thead>
+        <tbody id="admHistorique"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:18px;">
+      <button class="btn danger" id="btnResetStats">Effacer toutes les statistiques</button>
+    </div>
+  </div>
+
+  <div class="carte">
+    <h1>Édition des quiz</h1>
+    <p class="sous-titre">Modifiez les questions des deux niveaux : intitulé, options, bonne réponse (bouton radio à gauche) et explication.</p>
+
+    <h2 style="color:var(--autunite);">Quiz facile</h2>
+    <div id="admQuestionsFacile"></div>
+    <button class="btn secondaire" id="btnAjouterFacile">+ Ajouter une question au quiz facile</button>
+
+    <hr class="sep-niveau">
+
+    <h2 style="color:var(--uv);">Quiz difficile</h2>
+    <div id="admQuestionsDifficile"></div>
+    <button class="btn secondaire" id="btnAjouterDifficile">+ Ajouter une question au quiz difficile</button>
+
+    <div class="centre" style="justify-content:flex-start;">
+      <button class="btn" id="btnSauvegarder">Enregistrer les modifications</button>
+      <button class="btn danger" id="btnRestaurer">Restaurer les quiz d'origine</button>
+    </div>
+    <p class="avertissement" id="msgSauvegarde"></p>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ============================================================
+   QUESTIONS PAR DÉFAUT — 15 faciles + 15 difficiles
+   ============================================================ */
+const QUIZ_DEFAUT = {
+
+facile: [
+{
+ id:"f01",
+ question:"Sur l'échelle de dureté de Mohs, quel minéral occupe la dixième et dernière place, celle du plus dur ?",
+ options:["Le corindon","Le diamant","Le topaze","Le quartz"],
+ bonne:1,
+ explication:"L'échelle de Mohs (1812) classe dix minéraux de référence du plus tendre au plus dur : le talc (1) jusqu'au diamant (10). Le corindon occupe la 9e place, la topaze la 8e et le quartz la 7e. Chaque minéral raye tous ceux qui le précèdent."
+},
+{
+ id:"f02",
+ question:"Quel minéral doré est surnommé « l'or des fous » à cause de sa ressemblance trompeuse avec l'or ?",
+ options:["La chalcopyrite","La pyrite","La marcassite","La galène"],
+ bonne:1,
+ explication:"La pyrite (sulfure de fer, FeS2) a piégé bien des chercheurs d'or par son éclat métallique jaune. On la distingue facilement : elle est plus dure que l'or, cassante, et sa trace sur porcelaine est noire verdâtre alors que celle de l'or est jaune."
+},
+{
+ id:"f03",
+ question:"Quelle est la composition chimique du quartz, l'un des minéraux les plus abondants de la croûte terrestre ?",
+ options:["Carbonate de calcium (CaCO3)","Dioxyde de silicium (SiO2)","Sulfate de calcium (CaSO4)","Oxyde d'aluminium (Al2O3)"],
+ bonne:1,
+ explication:"Le quartz est du dioxyde de silicium, SiO2. C'est le deuxième minéral le plus abondant de la croûte continentale après les feldspaths. Le carbonate de calcium correspond à la calcite, le sulfate de calcium hydraté au gypse et l'oxyde d'aluminium au corindon."
+},
+{
+ id:"f04",
+ question:"L'améthyste, pierre violette très populaire, est en réalité une variété colorée de quel minéral ?",
+ options:["Du quartz","De la fluorine","Du béryl","De la tourmaline"],
+ bonne:0,
+ explication:"L'améthyste est un quartz violet, coloré par des traces de fer irradiées naturellement. La citrine (jaune), le quartz rose et le quartz fumé sont d'autres variétés colorées du même minéral. Chauffe une améthyste et elle vire souvent au jaune citrine !"
+},
+{
+ id:"f05",
+ question:"Le sel de cuisine que nous consommons chaque jour existe à l'état de minéral. Comment s'appelle-t-il ?",
+ options:["La sylvite","La halite","La calcite","La borax"],
+ bonne:1,
+ explication:"La halite est le chlorure de sodium (NaCl) cristallisé, appelé aussi sel gemme. Elle forme des cubes parfaits, parfois roses ou bleus. La sylvite lui ressemble mais c'est du chlorure de potassium (KCl), au goût amer."
+},
+{
+ id:"f06",
+ question:"Quel est le minéral le plus tendre de l'échelle de Mohs, rayable à l'ongle sans effort ?",
+ options:["Le gypse","La calcite","Le talc","Le graphite"],
+ bonne:2,
+ explication:"Le talc occupe la première place de l'échelle de Mohs avec une dureté de 1. Il est si tendre qu'il se raye à l'ongle et laisse une sensation savonneuse au toucher. Le gypse (2) se raye aussi à l'ongle, mais avec plus de résistance."
+},
+{
+ id:"f07",
+ question:"La malachite, minéral de cuivre très utilisé en ornementation et en lithothérapie, est reconnaissable à sa couleur. Laquelle ?",
+ options:["Bleu azur","Vert avec des zonations concentriques","Rouge sang","Violet profond"],
+ bonne:1,
+ explication:"La malachite est un carbonate de cuivre d'un vert intense, avec des rubanements concentriques caractéristiques quand elle est polie. Sa cousine bleue est l'azurite, avec laquelle elle est souvent associée dans les gisements de cuivre."
+},
+{
+ id:"f08",
+ question:"L'hématite est le principal minerai d'un métal essentiel à notre civilisation. Lequel ?",
+ options:["Le cuivre","L'aluminium","Le fer","Le zinc"],
+ bonne:2,
+ explication:"L'hématite est un oxyde de fer (Fe2O3), principal minerai de fer avec la magnétite. Malgré son aspect gris métallique, sa trace sur porcelaine est rouge sang, d'où son nom tiré du grec « haima », le sang. Un test de trace suffit à l'identifier."
+},
+{
+ id:"f09",
+ question:"Le diamant et le graphite de nos crayons ont un point commun surprenant. Lequel ?",
+ options:["Ils ont la même dureté","Ils sont composés du même élément chimique","Ils se forment à la même profondeur","Ils ont la même couleur de trace"],
+ bonne:1,
+ explication:"Diamant et graphite sont tous deux du carbone pur ! Seul l'arrangement des atomes diffère : structure cubique très compacte pour le diamant (dureté 10), feuillets faiblement liés pour le graphite (dureté 1 à 2). On appelle cela des polymorphes."
+},
+{
+ id:"f10",
+ question:"Quelle propriété étonnante la magnétite possède-t-elle naturellement ?",
+ options:["Elle brille dans le noir","Elle attire les objets en fer","Elle change de couleur avec la température","Elle flotte sur l'eau"],
+ bonne:1,
+ explication:"La magnétite (Fe3O4) est naturellement magnétique : c'est le seul minéral courant qui attire franchement le fer. Les « pierres d'aimant » de l'Antiquité étaient des magnétites, et elles ont donné naissance aux premières boussoles."
+},
+{
+ id:"f11",
+ question:"L'émeraude, pierre précieuse verte, est une variété de quel minéral ?",
+ options:["Du corindon","Du béryl","Du grenat","De l'olivine"],
+ bonne:1,
+ explication:"L'émeraude est un béryl vert, coloré par du chrome ou du vanadium. Le béryl a d'autres variétés célèbres : l'aigue-marine (bleue), la morganite (rose) et l'héliodore (jaune). Le corindon, lui, donne le rubis et le saphir."
+},
+{
+ id:"f12",
+ question:"Rubis et saphir sont deux pierres précieuses très différentes en apparence. Quel est leur secret ?",
+ options:["Ce sont deux variétés du même minéral, le corindon","Le saphir est un rubis chauffé","Ce sont des variétés de quartz","Le rubis est organique, le saphir minéral"],
+ bonne:0,
+ explication:"Rubis et saphir sont tous deux du corindon (oxyde d'aluminium, dureté 9). Le chrome donne le rouge du rubis ; le fer et le titane donnent le bleu du saphir. Par convention, tout corindon gemme non rouge est appelé saphir, y compris jaune, rose ou vert."
+},
+{
+ id:"f13",
+ question:"Le phénomène de « fluorescence », cette lumière émise par certains minéraux sous lampe UV, doit son nom à un minéral. Lequel ?",
+ options:["Le fluor natif","La fluorine","La phosphorite","L'opale"],
+ bonne:1,
+ explication:"Le mot fluorescence a été créé en 1852 par le physicien George Stokes à partir de la fluorine (fluorite), qui présente souvent une belle luminescence bleue ou violette sous UV. L'élément fluor tire lui aussi son nom de ce minéral, et non l'inverse."
+},
+{
+ id:"f14",
+ question:"Comment identifier facilement la calcite parmi d'autres minéraux blancs ?",
+ options:["Elle est magnétique","Elle fait effervescence avec une goutte d'acide","Elle sent le soufre quand on la frotte","Elle est fluorescente à la lumière du jour"],
+ bonne:1,
+ explication:"La calcite est un carbonate de calcium (CaCO3) : une goutte d'acide chlorhydrique dilué (ou même de vinaigre) la fait mousser en libérant du CO2. C'est LE test classique du géologue de terrain pour distinguer calcite et quartz, qui ne réagit pas."
+},
+{
+ id:"f15",
+ question:"Dans quel type de roche se forment les géodes d'améthyste géantes du Brésil et d'Uruguay ?",
+ options:["Dans le calcaire","Dans les laves volcaniques (basaltes)","Dans le granite","Dans le sel gemme"],
+ bonne:1,
+ explication:"Ces géodes se forment dans des cavités laissées par les bulles de gaz des coulées de basalte. Des fluides riches en silice y circulent pendant des milliers d'années et tapissent les parois de cristaux d'améthyste, parfois sur plusieurs mètres de haut."
+}
+],
+
+difficile: [
+{
+ id:"d01",
+ question:"La « chessylite », variété historique d'un minéral de cuivre, doit son nom au gisement français de Chessy-les-Mines. De quelle espèce s'agit-il ?",
+ options:["La malachite","L'azurite","La cuprite","La linarite"],
+ bonne:1,
+ explication:"La chessylite est le nom historique de l'azurite de Chessy-les-Mines (Rhône). Ce gisement, exploité au début du XIXe siècle, a fourni des cristaux d'azurite d'un bleu profond considérés parmi les plus beaux au monde, présents dans les grandes collections des muséums."
+},
+{
+ id:"d02",
+ question:"Le gisement des Farges, près d'Ussel en Corrèze, est mondialement célèbre pour ses cristaux verts d'un minéral secondaire de plomb. Lequel ?",
+ options:["La mimétite","La vanadinite","La pyromorphite","La cérusite"],
+ bonne:2,
+ explication:"La pyromorphite des Farges, un chlorophosphate de plomb Pb5(PO4)3Cl, est une référence mondiale. Ses cristaux prismatiques vert pomme à vert kaki, exploités surtout dans les années 1970-1980, figurent dans toutes les grandes collections internationales."
+},
+{
+ id:"d03",
+ question:"En Aveyron, quel gisement est célèbre dans le monde entier pour ses fluorines jaunes ?",
+ options:["Valzergues","Le Burc","Montroc","Le Beix"],
+ bonne:0,
+ explication:"Valzergues (Aveyron) a produit des fluorines jaune miel à jaune d'or d'une qualité exceptionnelle, souvent en cubes très brillants. Le Beix (Puy-de-Dôme) est célèbre pour ses fluorines bleues, Montroc et Le Burc (Tarn) pour d'autres teintes."
+},
+{
+ id:"d04",
+ question:"L'autunite, phosphate d'uranyle et de calcium décrit près d'Autun, présente une propriété spectaculaire sous lampe UV. Laquelle ?",
+ options:["Une phosphorescence rouge durable","Une fluorescence vert vif","Un changement de couleur permanent","Une thermoluminescence bleue"],
+ bonne:1,
+ explication:"L'autunite présente une fluorescence vert vif caractéristique sous UV, due à l'ion uranyle. C'est un minéral radioactif : il se manipule avec précautions et se conserve dans un contenant adapté, loin des pièces de vie."
+},
+{
+ id:"d05",
+ question:"Le gisement du Margabal, près d'Entraygues-sur-Truyère (Aveyron), est une localité française classique pour un minéral vert radioactif. Lequel ?",
+ options:["La torbernite","La zeunérite","L'uranophane","La brochantite"],
+ bonne:0,
+ explication:"Le Margabal a fourni de superbes tablettes vertes de torbernite, phosphate hydraté d'uranium et de cuivre. C'est l'une des localités françaises les plus réputées pour cette espèce, très recherchée des collectionneurs de minéraux uranifères."
+},
+{
+ id:"d06",
+ question:"La mine de La Gardette, près de Bourg-d'Oisans (Isère), est légendaire pour ses quartz. Quelle particularité rend certains de ses cristaux célèbres ?",
+ options:["Des inclusions d'or natif visibles","Des macles selon la loi du Japon","Une couleur améthyste intense","Des fantômes de chlorite verte"],
+ bonne:1,
+ explication:"La Gardette, ancienne mine d'or, a produit des quartz hyalins d'une limpidité extraordinaire et surtout des macles selon la loi du Japon, si célèbres qu'on les appelle en France « macles de La Gardette ». Deux cristaux y forment un angle d'environ 84°33'."
+},
+{
+ id:"d07",
+ question:"Combien de systèmes cristallins distingue-t-on classiquement en cristallographie ?",
+ options:["Cinq","Six","Sept","Neuf"],
+ bonne:2,
+ explication:"On distingue classiquement sept systèmes cristallins : cubique, quadratique (tétragonal), orthorhombique, monoclinique, triclinique, hexagonal et rhomboédrique (trigonal). Certaines classifications regroupent hexagonal et trigonal en six familles, mais la référence en minéralogie reste sept."
+},
+{
+ id:"d08",
+ question:"La calcite et l'aragonite illustrent parfaitement le phénomène de polymorphisme. Qu'est-ce que cela signifie ?",
+ options:["Elles cristallisent en de multiples couleurs","Elles ont la même composition chimique mais des structures cristallines différentes","Elles se transforment l'une en l'autre à la lumière","Elles contiennent plusieurs éléments chimiques"],
+ bonne:1,
+ explication:"Calcite et aragonite sont toutes deux du carbonate de calcium (CaCO3), mais la calcite cristallise dans le système rhomboédrique et l'aragonite dans l'orthorhombique. L'aragonite, métastable en surface, se transforme lentement en calcite au fil du temps géologique."
+},
+{
+ id:"d09",
+ question:"Le « spath d'Islande », variété limpide d'un minéral commun, est célèbre pour un phénomène optique remarquable. Lequel ?",
+ options:["La double réfraction (biréfringence)","L'astérisme en étoile à six branches","L'effet œil-de-chat","L'adularescence bleutée"],
+ bonne:0,
+ explication:"Le spath d'Islande est une calcite parfaitement transparente qui dédouble les images vues au travers : c'est la biréfringence, liée à sa structure rhomboédrique. Ce phénomène a joué un rôle historique majeur dans la compréhension de la polarisation de la lumière."
+},
+{
+ id:"d10",
+ question:"Qu'est-ce que le pléochroïsme, propriété optique recherchée par les gemmologues ?",
+ options:["Le changement de couleur d'un minéral selon la direction d'observation","La capacité à décomposer la lumière en arc-en-ciel","L'apparition d'inclusions colorées sous UV","La variation de couleur selon la température"],
+ bonne:0,
+ explication:"Un minéral pléochroïque montre des couleurs différentes selon l'axe sous lequel on l'observe, car il absorbe la lumière différemment selon ses directions cristallographiques. La cordiérite (nommée d'après le minéralogiste français Louis Cordier) et la tanzanite en sont des exemples spectaculaires."
+},
+{
+ id:"d11",
+ question:"La célèbre macle « en fer de lance », en forme de pointe symétrique, est caractéristique de quel minéral ?",
+ options:["De la staurotide","Du gypse","De l'orthose","De la cassitérite"],
+ bonne:1,
+ explication:"La macle en fer de lance est l'association symétrique de deux cristaux de gypse, classique du bassin parisien. Attention au piège : la staurotide forme des macles en croix (les « croisettes de Bretagne ») et l'orthose des macles de Carlsbad, très différentes."
+},
+{
+ id:"d12",
+ question:"La dolomite doit son nom à un scientifique français du XVIIIe siècle. Qui est-il ?",
+ options:["René Just Haüy","Déodat de Dolomieu","Alexandre Brongniart","Jean-Baptiste Romé de l'Isle"],
+ bonne:1,
+ explication:"Déodat Gratet de Dolomieu (1750-1801), géologue français né à Dolomieu (Isère), a décrit cette roche carbonatée dans les Alpes. Le minéral, puis le massif italien des Dolomites, ont été nommés en son honneur. Haüy et Romé de l'Isle sont les pères de la cristallographie française."
+},
+{
+ id:"d13",
+ question:"La mine de Sainte-Lucie, à Saint-Léger-de-Peyre (Lozère), est considérée comme une localité de classe mondiale pour un tungstate de plomb. Lequel ?",
+ options:["La wulfénite","La schéelite","La stolzite","La ferbérite"],
+ bonne:2,
+ explication:"Sainte-Lucie a produit des cristaux de stolzite (PbWO4) considérés parmi les plus beaux jamais trouvés au monde. Attention au piège : la wulfénite est un molybdate de plomb, la schéelite un tungstate de calcium et la ferbérite un tungstate de fer."
+},
+{
+ id:"d14",
+ question:"Dans quel système cristallin le diamant cristallise-t-il ?",
+ options:["Hexagonal","Cubique","Quadratique","Rhomboédrique"],
+ bonne:1,
+ explication:"Le diamant cristallise dans le système cubique, souvent en octaèdres. Il existe bien un polymorphe hexagonal du carbone, la lonsdaléite, extrêmement rare et associée aux impacts de météorites, mais le diamant classique est cubique."
+},
+{
+ id:"d15",
+ question:"Selon quels critères principaux la classification de Nickel-Strunz, référence internationale, organise-t-elle les minéraux ?",
+ options:["Leur couleur et leur éclat","Leur composition chimique et leur structure cristalline","Leur dureté et leur densité","Leur pays de découverte et leur date de description"],
+ bonne:1,
+ explication:"La classification de Nickel-Strunz range les minéraux en dix classes selon leur chimie (éléments natifs, sulfures, oxydes, carbonates, silicates, etc.), affinées par leur structure cristalline. C'est le système utilisé par la plupart des musées et des bases de données comme Mindat."
+}
+]
+};
+
+/* ============================================================
+   STOCKAGE (window.storage si dispo, sinon mémoire de session)
+   ============================================================ */
+const memoire = {};
+const store = {
+  async get(cle){
+    try{
+      if(window.storage){
+        const r = await window.storage.get(cle);
+        if(r && r.value) return JSON.parse(r.value);
+      }
+    }catch(e){ /* clé absente ou stockage indisponible */ }
+    return memoire[cle] !== undefined ? memoire[cle] : null;
+  },
+  async set(cle, valeur){
+    memoire[cle] = valeur;
+    try{
+      if(window.storage) await window.storage.set(cle, JSON.stringify(valeur));
+    }catch(e){ /* on garde au moins la mémoire de session */ }
+  }
+};
+const CLE_QUIZ = "quiz-mineralogie-quiz-v2";
+const CLE_STATS = "quiz-mineralogie-stats-v2";
+
+/* ============================================================
+   ÉTAT
+   ============================================================ */
+let quiz = JSON.parse(JSON.stringify(QUIZ_DEFAUT));
+let stats = { parties: [] };
+let joueur = "";
+let niveauCourant = null;   // "facile" ou "difficile"
+let indexQuestion = 0;
+let score = 0;
+let serieCourante = 0;
+let meilleureSerie = 0;
+let reponsesPartie = [];
+let debutPartie = 0;
+let adminConnecte = false;
+
+function questionsActives(){ return quiz[niveauCourant]; }
+function libelleNiveau(n){ return n === "facile" ? "Facile" : "Difficile"; }
+
+/* ============================================================
+   SON DE VICTOIRE (carillon cristallin montant)
+   ============================================================ */
+let ctxAudio = null;
+function sonVictoire(){
+  try{
+    if(!ctxAudio) ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+    const t = ctxAudio.currentTime;
+    const notes = [880, 1174.66, 1567.98]; // La5, Ré6, Sol6 : arpège lumineux
+    notes.forEach((f, i)=>{
+      const osc = ctxAudio.createOscillator();
+      const gain = ctxAudio.createGain();
+      osc.type = "sine";
+      osc.frequency.value = f;
+      const debut = t + i * 0.09;
+      gain.gain.setValueAtTime(0.0001, debut);
+      gain.gain.exponentialRampToValueAtTime(0.22, debut + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, debut + 0.5);
+      osc.connect(gain).connect(ctxAudio.destination);
+      osc.start(debut);
+      osc.stop(debut + 0.55);
+    });
+  }catch(e){ /* audio non disponible : le quiz continue sans son */ }
+}
+
+/* ============================================================
+   SON DE DÉFAITE (descente grave, sombre et feutrée)
+   ============================================================ */
+function sonDefaite(){
+  try{
+    if(!ctxAudio) ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+    const t = ctxAudio.currentTime;
+    const notes = [220, 174.61, 130.81]; // La3, Fa3, Do3 : descente mineure
+    notes.forEach((f, i)=>{
+      const osc = ctxAudio.createOscillator();
+      const gain = ctxAudio.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(f, t + i * 0.14);
+      osc.frequency.exponentialRampToValueAtTime(f * 0.94, t + i * 0.14 + 0.3);
+      const debut = t + i * 0.14;
+      gain.gain.setValueAtTime(0.0001, debut);
+      gain.gain.exponentialRampToValueAtTime(0.18, debut + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, debut + 0.45);
+      osc.connect(gain).connect(ctxAudio.destination);
+      osc.start(debut);
+      osc.stop(debut + 0.5);
+    });
+  }catch(e){ /* audio non disponible : le quiz continue sans son */ }
+}
+
+/* ============================================================
+   NAVIGATION ONGLETS
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const ecrans = ["ecranNom","ecranQuiz","ecranResultats","ecranMdp","ecranAdmin"];
+function afficher(idEcran){
+  ecrans.forEach(e => $(e).classList.toggle("cachee", e !== idEcran));
+}
+$("ongletQuiz").addEventListener("click", ()=>{
+  $("ongletQuiz").classList.add("actif");
+  $("ongletAdmin").classList.remove("actif");
+  afficher("ecranNom");
+});
+$("ongletAdmin").addEventListener("click", ()=>{
+  $("ongletAdmin").classList.add("actif");
+  $("ongletQuiz").classList.remove("actif");
+  if(adminConnecte){ rafraichirAdmin(); afficher("ecranAdmin"); }
+  else { afficher("ecranMdp"); $("champMdp").value=""; $("erreurMdp").classList.add("cachee"); }
+});
+
+/* ============================================================
+   SÉLECTION DU NIVEAU
+   ============================================================ */
+$("carteFacile").addEventListener("click", ()=> choisirNiveau("facile"));
+$("carteDifficile").addEventListener("click", ()=> choisirNiveau("difficile"));
+function choisirNiveau(n){
+  niveauCourant = n;
+  $("carteFacile").classList.toggle("choisi-facile", n === "facile");
+  $("carteDifficile").classList.toggle("choisi-difficile", n === "difficile");
+  $("erreurDemarrage").classList.add("cachee");
+}
+
+/* ============================================================
+   DÉROULEMENT DU QUIZ
+   ============================================================ */
+$("btnCommencer").addEventListener("click", demarrerQuiz);
+$("champNom").addEventListener("keydown", e=>{ if(e.key==="Enter") demarrerQuiz(); });
+
+function demarrerQuiz(){
+  const nom = $("champNom").value.trim();
+  if(!nom){
+    $("erreurDemarrage").textContent = "Entrez votre nom pour commencer.";
+    $("erreurDemarrage").classList.remove("cachee");
+    $("champNom").focus();
+    return;
+  }
+  if(!niveauCourant){
+    $("erreurDemarrage").textContent = "Choisissez un niveau : facile ou difficile.";
+    $("erreurDemarrage").classList.remove("cachee");
+    return;
+  }
+  joueur = nom;
+  indexQuestion = 0; score = 0; serieCourante = 0; meilleureSerie = 0;
+  reponsesPartie = [];
+  debutPartie = Date.now();
+  $("nomJoueur").textContent = joueur;
+  const badge = $("badgeNiveau");
+  badge.textContent = libelleNiveau(niveauCourant);
+  badge.className = "badge-niveau " + niveauCourant;
+  afficher("ecranQuiz");
+  afficherQuestion();
+}
+
+function afficherQuestion(){
+  const qs = questionsActives();
+  const q = qs[indexQuestion];
+  $("compteur").textContent = "Question " + (indexQuestion+1) + " / " + qs.length;
+  $("barreProgression").style.width = (indexQuestion / qs.length * 100) + "%";
+  $("texteQuestion").textContent = q.question;
+  $("zoneExplication").classList.add("cachee");
+  $("btnSuivant").classList.add("cachee");
+  const zone = $("zoneOptions");
+  zone.innerHTML = "";
+  q.options.forEach((opt, i)=>{
+    const b = document.createElement("button");
+    b.className = "option";
+    b.textContent = opt;
+    b.addEventListener("click", ()=> repondre(i, b));
+    zone.appendChild(b);
+  });
+}
+
+function repondre(i, bouton){
+  const qs = questionsActives();
+  const q = qs[indexQuestion];
+  const boutons = $("zoneOptions").querySelectorAll(".option");
+  boutons.forEach(b => b.disabled = true);
+  const correct = (i === q.bonne);
+  if(correct){
+    bouton.classList.add("bonne");
+    score++; serieCourante++;
+    meilleureSerie = Math.max(meilleureSerie, serieCourante);
+    sonVictoire();
+  } else {
+    bouton.classList.add("mauvaise");
+    boutons[q.bonne].classList.add("bonne");
+    serieCourante = 0;
+    sonDefaite();
+  }
+  reponsesPartie.push({ id: q.id, correct: correct });
+  $("zoneExplication").innerHTML = "<strong>" + (correct ? "Bonne réponse !" : "Réponse : " + q.options[q.bonne]) + "</strong><br>" + q.explication;
+  $("zoneExplication").classList.remove("cachee");
+  $("btnSuivant").textContent = (indexQuestion === qs.length - 1) ? "Voir les résultats" : "Question suivante";
+  $("btnSuivant").classList.remove("cachee");
+}
+
+$("btnSuivant").addEventListener("click", ()=>{
+  indexQuestion++;
+  if(indexQuestion < questionsActives().length){ afficherQuestion(); }
+  else { finirQuiz(); }
+});
+
+async function finirQuiz(){
+  const qs = questionsActives();
+  const duree = Math.round((Date.now() - debutPartie)/1000);
+  const partie = {
+    nom: joueur,
+    niveau: niveauCourant,
+    date: new Date().toISOString(),
+    score: score,
+    total: qs.length,
+    duree: duree,
+    reponses: reponsesPartie
+  };
+  stats.parties.push(partie);
+  await store.set(CLE_STATS, stats);
+
+  const badge = $("badgeResultat");
+  badge.textContent = libelleNiveau(niveauCourant);
+  badge.className = "badge-niveau " + niveauCourant;
+  $("scoreFinal").textContent = score + " / " + qs.length;
+  const pct = Math.round(score / qs.length * 100);
+  $("statPourcent").textContent = pct + " %";
+  $("statTemps").textContent = Math.floor(duree/60) + " min " + String(duree%60).padStart(2,"0") + " s";
+  $("statSerie").textContent = meilleureSerie;
+  let mention;
+  if(pct === 100) mention = "Sans faute. Un œil de gemmologue confirmé.";
+  else if(pct >= 80) mention = "Excellent niveau, digne d'un collectionneur chevronné.";
+  else if(pct >= 60) mention = "Solide connaissance de la minéralogie.";
+  else if(pct >= 40) mention = "Bonne base, mais quelques filons restent à explorer.";
+  else mention = "Le terrain vous attend : chaque erreur est expliquée ci-dessous.";
+  $("mentionFinale").textContent = mention;
+
+  const recap = $("recapReponses");
+  recap.innerHTML = "";
+  reponsesPartie.forEach((r, i)=>{
+    const q = qs[i];
+    const div = document.createElement("div");
+    div.className = "recap-item";
+    div.innerHTML = "<span class='pastille'>" + (r.correct ? "✅" : "❌") + "</span><span>" + (i+1) + ". " + echapper(q.question) + "</span>";
+    recap.appendChild(div);
+  });
+  afficher("ecranResultats");
+}
+
+$("btnRejouer").addEventListener("click", ()=>{
+  afficher("ecranNom");
+});
+$("btnAutreNiveau").addEventListener("click", ()=>{
+  choisirNiveau(niveauCourant === "facile" ? "difficile" : "facile");
+  afficher("ecranNom");
+});
+
+/* ============================================================
+   ADMIN : CONNEXION
+   ============================================================ */
+$("btnConnexion").addEventListener("click", connexionAdmin);
+$("champMdp").addEventListener("keydown", e=>{ if(e.key==="Enter") connexionAdmin(); });
+function connexionAdmin(){
+  if($("champMdp").value === "1234"){
+    adminConnecte = true;
+    rafraichirAdmin();
+    afficher("ecranAdmin");
+  } else {
+    $("erreurMdp").classList.remove("cachee");
+  }
+}
+
+/* ============================================================
+   ADMIN : STATISTIQUES
+   ============================================================ */
+function rafraichirAdmin(){
+  const parties = stats.parties;
+  const pf = parties.filter(p => p.niveau === "facile");
+  const pd = parties.filter(p => p.niveau !== "facile");
+  $("admTotalParties").textContent = parties.length;
+  $("admPartiesFacile").textContent = pf.length;
+  $("admPartiesDifficile").textContent = pd.length;
+  $("admMoyenneFacile").textContent = pf.length ? Math.round(pf.reduce((s,p)=> s + p.score/p.total, 0)/pf.length*100) + " %" : "–";
+  $("admMoyenneDifficile").textContent = pd.length ? Math.round(pd.reduce((s,p)=> s + p.score/p.total, 0)/pd.length*100) + " %" : "–";
+  $("admMeilleur").textContent = parties.length ? parties.reduce((m,p)=> Math.max(m, Math.round(p.score/p.total*100)), 0) + " %" : "–";
+
+  construireTaux("facile", $("admTauxFacile"));
+  construireTaux("difficile", $("admTauxDifficile"));
+
+  const corps = $("admHistorique");
+  corps.innerHTML = "";
+  [...parties].reverse().forEach(p=>{
+    const tr = document.createElement("tr");
+    const d = new Date(p.date);
+    const niv = p.niveau === "facile" ? "facile" : "difficile";
+    tr.innerHTML = "<td>" + echapper(p.nom) + "</td>" +
+      "<td><span class='badge-niveau " + niv + "'>" + libelleNiveau(niv) + "</span></td>" +
+      "<td>" + d.toLocaleDateString("fr-FR") + " " + d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) + "</td>" +
+      "<td>" + p.score + " / " + p.total + "</td>" +
+      "<td>" + Math.round(p.score/p.total*100) + " %</td>";
+    corps.appendChild(tr);
+  });
+
+  construireEditeur();
+}
+
+function construireTaux(niveau, cible){
+  cible.innerHTML = "";
+  const parties = stats.parties.filter(p => (p.niveau === "facile") === (niveau === "facile"));
+  quiz[niveau].forEach((q, i)=>{
+    let bonnes = 0, total = 0;
+    parties.forEach(p=>{
+      (p.reponses||[]).forEach(r=>{
+        if(r.id === q.id){ total++; if(r.correct) bonnes++; }
+      });
+    });
+    const pct = total ? Math.round(bonnes/total*100) : null;
+    const classe = pct === null ? "moyen" : (pct >= 70 ? "haut" : (pct >= 40 ? "moyen" : "bas"));
+    const div = document.createElement("div");
+    div.className = "recap-item";
+    div.innerHTML = "<span class='taux " + classe + "'>" + (pct===null ? "—" : pct + " %") + "</span><span>" + (i+1) + ". " + echapper(q.question) + "</span>";
+    cible.appendChild(div);
+  });
+}
+
+function echapper(t){
+  const d = document.createElement("div");
+  d.textContent = t;
+  return d.innerHTML;
+}
+
+$("btnResetStats").addEventListener("click", async ()=>{
+  if(confirm("Effacer définitivement toutes les statistiques ?")){
+    stats = { parties: [] };
+    await store.set(CLE_STATS, stats);
+    rafraichirAdmin();
+  }
+});
+
+/* ============================================================
+   ADMIN : ÉDITEUR DES DEUX QUIZ
+   ============================================================ */
+function construireEditeur(){
+  ["facile","difficile"].forEach(niveau=>{
+    const zone = niveau === "facile" ? $("admQuestionsFacile") : $("admQuestionsDifficile");
+    zone.innerHTML = "";
+    quiz[niveau].forEach((q, qi)=>{
+      const det = document.createElement("details");
+      det.className = "q-admin";
+      det.innerHTML =
+        "<summary>Question " + (qi+1) + " — " + echapper(q.question.slice(0,70)) + (q.question.length>70?"…":"") + "</summary>" +
+        "<div class='champ'><label>Intitulé de la question</label><textarea rows='3' data-niveau='" + niveau + "' data-q='" + qi + "' data-champ='question'>" + echapper(q.question) + "</textarea></div>" +
+        q.options.map((opt, oi)=>
+          "<div class='ligne-option'>" +
+          "<input type='radio' name='bonne-" + niveau + "-" + qi + "' data-niveau='" + niveau + "' data-q='" + qi + "' data-bonne='" + oi + "' " + (q.bonne===oi?"checked":"") + " title='Bonne réponse'>" +
+          "<input type='text' data-niveau='" + niveau + "' data-q='" + qi + "' data-option='" + oi + "' value=\"" + echapper(opt).replace(/"/g,"&quot;") + "\">" +
+          "</div>"
+        ).join("") +
+        "<div class='champ'><label>Explication affichée après la réponse</label><textarea rows='3' data-niveau='" + niveau + "' data-q='" + qi + "' data-champ='explication'>" + echapper(q.explication) + "</textarea></div>" +
+        "<div style='margin-top:12px;'><button class='btn danger' data-supprimer='" + qi + "' data-niveau-suppr='" + niveau + "'>Supprimer cette question</button></div>";
+      zone.appendChild(det);
+    });
+    zone.querySelectorAll("[data-supprimer]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const i = parseInt(b.dataset.supprimer);
+        const n = b.dataset.niveauSuppr;
+        if(quiz[n].length <= 1){ alert("Chaque quiz doit contenir au moins une question."); return; }
+        if(confirm("Supprimer la question " + (i+1) + " du quiz " + libelleNiveau(n).toLowerCase() + " ?")){
+          lireEditeur();
+          quiz[n].splice(i,1);
+          construireEditeur();
+        }
+      });
+    });
+  });
+}
+
+function ajouterQuestion(niveau){
+  lireEditeur();
+  quiz[niveau].push({
+    id: niveau.charAt(0) + Date.now(),
+    question: "Nouvelle question",
+    options: ["Option A","Option B","Option C","Option D"],
+    bonne: 0,
+    explication: "Explication de la bonne réponse."
+  });
+  construireEditeur();
+  const zone = niveau === "facile" ? $("admQuestionsFacile") : $("admQuestionsDifficile");
+  const derniers = zone.querySelectorAll("details");
+  derniers[derniers.length-1].open = true;
+  derniers[derniers.length-1].scrollIntoView({behavior:"smooth", block:"center"});
+}
+$("btnAjouterFacile").addEventListener("click", ()=> ajouterQuestion("facile"));
+$("btnAjouterDifficile").addEventListener("click", ()=> ajouterQuestion("difficile"));
+
+function lireEditeur(){
+  document.querySelectorAll("#ecranAdmin [data-champ]").forEach(el=>{
+    quiz[el.dataset.niveau][parseInt(el.dataset.q)][el.dataset.champ] = el.value;
+  });
+  document.querySelectorAll("#ecranAdmin [data-option]").forEach(el=>{
+    quiz[el.dataset.niveau][parseInt(el.dataset.q)].options[parseInt(el.dataset.option)] = el.value;
+  });
+  document.querySelectorAll("#ecranAdmin [data-bonne]").forEach(el=>{
+    if(el.checked) quiz[el.dataset.niveau][parseInt(el.dataset.q)].bonne = parseInt(el.dataset.bonne);
+  });
+}
+
+$("btnSauvegarder").addEventListener("click", async ()=>{
+  lireEditeur();
+  await store.set(CLE_QUIZ, quiz);
+  $("msgSauvegarde").textContent = "Modifications enregistrées (" + quiz.facile.length + " questions faciles, " + quiz.difficile.length + " difficiles).";
+  setTimeout(()=> $("msgSauvegarde").textContent = "", 4000);
+  rafraichirAdmin();
+});
+
+$("btnRestaurer").addEventListener("click", async ()=>{
+  if(confirm("Restaurer les 30 questions d'origine (15 faciles + 15 difficiles) ? Vos modifications seront perdues.")){
+    quiz = JSON.parse(JSON.stringify(QUIZ_DEFAUT));
+    await store.set(CLE_QUIZ, quiz);
+    rafraichirAdmin();
+  }
+});
+
+/* ============================================================
+   INITIALISATION
+   ============================================================ */
+(async function init(){
+  const qSauve = await store.get(CLE_QUIZ);
+  if(qSauve && qSauve.facile && qSauve.difficile) quiz = qSauve;
+  const sSauve = await store.get(CLE_STATS);
+  if(sSauve && Array.isArray(sSauve.parties)) stats = sSauve;
+})();
+</script>
+</body>
+</html>
